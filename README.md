@@ -1,10 +1,10 @@
-Jordan DeAndrade - COMP490 Capstone - Project 1
+## **Jordan DeAndrade - COMP490 Capstone - Project 1**
 
-Project Overview
+## **Project Overview**
 
 This project is designed to generate tailored resumes based on job listings. It integrates Google Gemini API to generate resume content dynamically. The program processes job listings from a JSON file, prompts the user for relevant details, and constructs a customized resume in markdown format.
 
-Features
+## **Features
 
 Reads and processes job listings from rapid_jobs2.json
 
@@ -16,7 +16,7 @@ Constructs an AI-generated resume using Google Gemini API
 
 Saves the generated resume in a markdown file
 
-Prerequisites
+## **Prerequisites
 
 Python 3.x
 
@@ -42,7 +42,7 @@ Usage
 
 Run the script:
 
-python script.py
+python main.py
 
 Follow the on-screen prompts:
 
@@ -56,7 +56,7 @@ The AI will generate a resume based on the input.
 
 The generated resume will be saved as generated_resume_<job_title>.md.
 
-Error Handling
+## **Error Handling**
 
 Handles invalid JSON lines in rapid_jobs2.json
 
