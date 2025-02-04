@@ -35,7 +35,7 @@ api_key = "your_api_key_here" (key may be provided)
 
 Ensure rapid_jobs2.json contains valid job listings in JSON format.
 
-Usage
+## Usage
 
 Run the script:
 ```sh
