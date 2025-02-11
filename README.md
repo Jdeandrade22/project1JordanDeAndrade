@@ -80,3 +80,4 @@ GitHub: www.github.com/jdeandrade22
 License
 
 This project is for educational purposes as part of the COMP490 Capstone project.
+Partial ReadMe material written by Ollama
