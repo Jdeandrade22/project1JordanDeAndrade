@@ -5,44 +5,8 @@ from main import load_json_data, create_database, insert_job_data
 
 
 # Module docstring
-"""This module handles job data loading, insertion into a SQLite database, 
+"""This module handles job data loading, insertion into a SQLite database,
 and testing the database operations."""
-
-# Insert job data into the database
-def insert_job_data(job_listings, db_file="test_jobs.db"):
-    """Insert job listings into the database."""
-    conn = sqlite3.connect(db_file)
-    cursor = conn.cursor()
-
-    for job in job_listings:
-        cursor.execute("""
-            INSERT INTO job_listings (title, company, location)
-            VALUES (?, ?, ?)
-        """, (job["title"], job["company"], job["location"]))
-
-    conn.commit()
-    conn.close()
-
-
-# Create the database
-def create_database():
-    """Create the job_listings table in the database if it does not exist."""
-    db_file = "test_jobs.db"
-    conn = sqlite3.connect(db_file)
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS job_listings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            company TEXT,
-            location TEXT
-        )
-    """)
-
-    conn.commit()
-    conn.close()
-
 
 # Test database operations
 def test_database_operations():
