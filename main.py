@@ -1,3 +1,5 @@
+import sqlite3
+import sys
 import google.generativeai as genai
 import json
 from api import api_key
@@ -5,91 +7,193 @@ from api import api_key
 # Configure the API
 genai.configure(api_key=api_key)
 
-# Load job listings from JSON
-job_listings = []
-with open("rapid_jobs2.json", "r") as file:
-    for line in file:
-        try:
-            job_listings.append(json.loads(line.strip()))
-        except json.JSONDecodeError as e:
-            print(f"Skipping invalid JSON line: {e}")
+# Mapping inconsistent fields
+inconsistent_fields = {
+    "employment_type": "job_type",
+    "url": "job_url",
+    "salary_range": "salary_source"
+}
 
-# Exception Handling
-if not job_listings or not isinstance(job_listings, list):
-    raise ValueError("Job listings were not properly loaded.")
+# Params the script filters through the JSON with
+fields = [
+    "site", "job_url", "job_url_direct", "title", "company", "location", "job_type",
+    "date_posted", "salary_source", "interval", "min_amount", "max_amount", "currency",
+    "is_remote", "job_level", "job_function", "company_industry", "listing_type", "emails",
+    "description", "company_addresses", "company_num_employees", "company_revenue",
+    "company_description"
+]
 
-# Flatten the job listings if needed
-if isinstance(job_listings[0], list):
-    job_listings = job_listings[0]
+# Helps configure JSON files to proper format
+sys.stdout.reconfigure(encoding='utf-8')
 
-# Display jobs to the user
-print("\nAvailable Job Listings:")
-for index, job in enumerate(job_listings, start=1):
-    if isinstance(job, dict):
-        print(f"{index}. {job.get('title', 'Unknown Job')} at {job.get('company', 'Unknown Company')}")
-    else:
-        print(f"{index}. Invalid job format")
 
-# Prompt user to choose a job
-while True:
+# Loads JSON as ASCII for proper identification and structure
+def load_json_data(file_path):
+    job_listings = []
     try:
-        choice = int(input("\nEnter the number of the job you'd like to apply for: ")) - 1
-        if 0 <= choice < len(job_listings):
-            job = job_listings[choice]
+        with open(file_path, "r", encoding="ascii") as file:
+            for line in file:
+                try:
+                    job_entry = json.loads(line.strip())
+                    if isinstance(job_entry, list):
+                        job_listings.extend(job_entry)
+                    else:
+                        job_listings.append(job_entry)
+                except json.JSONDecodeError as e:
+                    print(f"Skipping invalid JSON line in {file_path}: {e}")
+    except FileNotFoundError:
+        print(f"Warning: {file_path} not found. Skipping.")
+    return job_listings
+
+
+# Reformats JSON structure if needed
+def reformat_job_data(job):
+    reformatted_job = {col: None for col in fields}
+    for key, value in job.items():
+        mapped_key = inconsistent_fields.get(key, key)
+        if mapped_key in reformatted_job:
+            reformatted_job[mapped_key] = str(value) if value is not None else None
+    return reformatted_job
+
+
+# Selects a job from the list
+def select_job(job_listings):
+    print("\nAvailable Job Listings:")
+    for index, job in enumerate(job_listings, start=1):
+        if isinstance(job, dict):
+            print(f"{index}. {job.get('title', 'Unknown Job')} at {job.get('company', 'Unknown Company')}")
+        else:
+            print(f"{index}. Invalid job format")
+
+    while True:
+        try:
+            choice = int(input("\nEnter the number of the job you'd like to apply for: ")) - 1
+            if 0 <= choice < len(job_listings):
+                return job_listings[choice]
+            print("Invalid choice, please enter a valid job number.")
+        except ValueError:
+            print("Invalid input, please enter a number.")
+
+
+# Gains info about the user for the resume
+def gather_user_details():
+    print("\nLet's customize your resume. Please answer the following questions:")
+    name = input("Full Name: ").strip()
+    university = input("University (or education background): ").strip()
+    experience = input(
+        "Briefly describe your experience (e.g., programming languages, software development, etc.): ").strip()
+
+    projects = []
+    print("\nEnter your key projects (press Enter when done):")
+    while True:
+        project = input("Project: ").strip()
+        if project == "":
             break
-        print("Invalid choice, please enter a valid job number.")
-    except ValueError:
-        print("Invalid input, please enter a number.")
+        projects.append(f"- {project}")
 
-# Selected job details
-print(f"Selected job: {job.get('title', 'Unknown Job Title')} at {job.get('company', 'Unknown Company')}")
+    return {
+        "name": name,
+        "university": university,
+        "experience": experience,
+        "projects": projects
+    }
 
-job_description = job.get("description", "No description available")
-job_title = job.get("title", "Unknown Job Title")
-company_name = job.get("company", "Unknown Company")
 
-# Gather user details
-print("\nLet's customize your resume. Please answer the following questions:")
-name = input("Full Name: ").strip()
-university = input("University (or education background): ").strip()
-experience = input("Briefly describe your experience (e.g., programming languages, software development, etc.): ").strip()
+# Generates resume with user info while prompting AI
+def generate_resume(job, user_details):
+    job = reformat_job_data(job)
+    job_description = job.get("description", "No description available")
+    job_title = job.get("title", "Unknown Job Title")
+    company_name = job.get("company", "Unknown Company")
 
-# Collect projects
-projects = []
-print("\nEnter your key projects (press Enter when done):")
-while True:
-    project = input("Project: ").strip()
-    if project == "":
-        break
-    projects.append(f"- {project}")
-
-# Build personal description dynamically
-personal_description = f"""
-My name is {name}, and I am a student at {university}. I have experience in {experience}.
+    personal_description = f"""
+My name is {user_details['name']}, and I am a student at {user_details['university']}. I have experience in {user_details['experience']}.
 I have worked on various projects, including:
-{chr(10).join(projects) if projects else '- No projects listed'}
+{chr(10).join(user_details['projects']) if user_details['projects'] else '- No projects listed'}
 """
 
-# Construct AI prompt
-prompt = f"""Given the following job title: {job_title} at {company_name}
+    prompt = f"""Given the following job title: {job_title} at {company_name}
 Job description:
 {job_description}
 And the following personal description: {personal_description}
 Please generate a resume in markdown format tailored to this job.
 """
+    # Calling AI
+    gen_model = genai.GenerativeModel("gemini-1.5-flash")
+    response = gen_model.generate_content(prompt)
+    return response.text
 
-# AI response
-gen_model = genai.GenerativeModel("gemini-1.5-flash")
-response = gen_model.generate_content(prompt)
-resume_text = response.text
 
-# Display generated resume
-print("\nGenerated Resume:\n")
-print(resume_text)
+# Creates the database
+def create_database():
+    conn = sqlite3.connect("savedJobs.db")  # Change to savedJobs.db
+    cursor = conn.cursor()
 
-# Save resume
-save_path = f"generated_resume_{job_title.replace(' ', '_')}.md"
-with open(save_path, "w") as file:
-    file.write(resume_text)
+    cursor.execute(""" 
+        CREATE TABLE IF NOT EXISTS job_listings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            site TEXT, job_url TEXT, job_url_direct TEXT, title TEXT, company TEXT,
+            location TEXT, job_type TEXT, date_posted TEXT, salary_source TEXT,
+            interval TEXT, min_amount REAL, max_amount REAL, currency TEXT,
+            is_remote TEXT, job_level TEXT, job_function TEXT, company_industry TEXT,
+            listing_type TEXT, emails TEXT, description TEXT, company_addresses TEXT,
+            company_num_employees TEXT, company_revenue TEXT, company_description TEXT
+        )
+    """)
 
-print(f"\nResume saved to {save_path}")
+    conn.commit()
+    conn.close()
+
+
+# Inserts job data into the database
+def insert_job_data(jobs):
+    conn = sqlite3.connect("savedJobs.db")
+    cursor = conn.cursor()
+
+    for job in jobs:
+        columns = tuple(job.keys())
+        values = tuple(job.values())
+
+        placeholders = ", ".join(["?"] * len(values))
+        sql_query = f"INSERT INTO job_listings ({', '.join(columns)}) VALUES ({placeholders})"
+
+        cursor.execute(sql_query, values)
+
+    conn.commit()
+    conn.close()
+
+
+# Main function
+def main():
+    data_files = ["rapidResults (1).json", "rapid_jobs2.json"]
+    job_listings = []
+    for file_path in data_files:
+        job_listings.extend(load_json_data(file_path))
+
+    if not job_listings:
+        print("No job listings found. Please check the files.")
+        return
+
+    # Reformat and insert jobs into the database
+    reformatted_jobs = [reformat_job_data(job) for job in job_listings]
+    create_database()
+    insert_job_data(reformatted_jobs)
+
+    job = select_job(reformatted_jobs)
+    user_details = gather_user_details()
+    resume_text = generate_resume(job, user_details)
+
+    print("\nGenerated Resume:\n")
+    print(resume_text)
+
+    save_path = f"generated_resume_{job['title'].replace(' ', '_')}.md"
+    with open(save_path, "w") as file:
+        file.write(resume_text)
+
+    print(f"\nResume saved to {save_path}")
+
+
+if __name__ == "__main__":
+    main()
+
+#some functions proviveded with use of google ai
