@@ -7,6 +7,7 @@ import sqlite3
 import google.generativeai as genai
 from api import api_key  # Ensure 'api.py' exists
 
+
 # Configure the API
 genai.configure(api_key=api_key)
 
@@ -29,6 +30,8 @@ fields = [
     "description", "company_addresses", "company_num_employees", "company_revenue",
     "company_description"
 ]
+
+
 def load_json_data(file_path):
     """Loads JSON as ASCII for proper identification and structure."""
     job_listings = []
@@ -54,7 +57,9 @@ def reformat_job_data(job):
     for key, value in job.items():
         mapped_key = inconsistent_fields.get(key, key)
         if mapped_key in reformatted_job:
-            reformatted_job[mapped_key] = str(value) if value is not None else None
+            reformatted_job[mapped_key] = (
+                str(value) if value is not None else None
+            )
     return reformatted_job
 
 
@@ -63,8 +68,8 @@ def select_job(job_listings):
     print("\nAvailable Job Listings:")
     for index, job in enumerate(job_listings, start=1):
         if isinstance(job, dict):
-            print(f"{index}. {job.get('title', 'Unknown Job')}"
-                  f" at {job.get('company', 'Unknown Company')}")
+            print(f"{index}. {job.get('title', 'Unknown Job')} at "
+                  f"{job.get('company', 'Unknown Company')}")
         else:
             print(f"{index}. Invalid job format")
 
@@ -116,8 +121,7 @@ def generate_resume(job, user_details):
         f"I have experience in {user_details['experience']}.\n"
         f"I have worked on various projects, including:\n"
         f"{chr(10).join(user_details['projects'])}"
-        if user_details['projects'] else
-        "- No projects listed"
+        if user_details['projects'] else "- No projects listed"
     )
 
     prompt = (
@@ -137,17 +141,15 @@ def create_database():
     conn = sqlite3.connect("savedJobs.db")
     cursor = conn.cursor()
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS job_listings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            site TEXT, job_url TEXT, job_url_direct TEXT, title TEXT, company TEXT,
-            location TEXT, job_type TEXT, date_posted TEXT, salary_source TEXT,
-            interval TEXT, min_amount REAL, max_amount REAL, currency TEXT,
-            is_remote TEXT, job_level TEXT, job_function TEXT, company_industry TEXT,
-            listing_type TEXT, emails TEXT, description TEXT, company_addresses TEXT,
-            company_num_employees TEXT, company_revenue TEXT, company_description TEXT
-        )
-    """)
+    cursor.execute("""CREATE TABLE IF NOT EXISTS job_listings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        site TEXT, job_url TEXT, job_url_direct TEXT, title TEXT, company TEXT,
+        location TEXT, job_type TEXT, date_posted TEXT, salary_source TEXT,
+        interval TEXT, min_amount REAL, max_amount REAL, currency TEXT,
+        is_remote TEXT, job_level TEXT, job_function TEXT, company_industry TEXT,
+        listing_type TEXT, emails TEXT, description TEXT, company_addresses TEXT,
+        company_num_employees TEXT, company_revenue TEXT, company_description TEXT
+    )""")
 
     conn.commit()
     conn.close()
@@ -198,6 +200,8 @@ def main():
 
     print(f"\nResume saved to {save_path}")
 
-# some functions and comments added by Google Ai
+
+# Some functions and comments added by Google AI
+
 if __name__ == "__main__":
     main()
