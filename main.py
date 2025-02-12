@@ -1,11 +1,18 @@
-import sqlite3
-import sys
-import google.generativeai as genai
+"""This script processes job listings, generates resumes, and stores data in an SQLite database."""
+
 import json
-from api import api_key
+import sys
+import sqlite3
+
+import google.generativeai as genai
+from api import api_key  # Ensure 'api.py' exists
 
 # Configure the API
 genai.configure(api_key=api_key)
+
+# Helps configure JSON files to proper format
+sys.stdout.reconfigure(encoding="utf-8")
+
 
 # Mapping inconsistent fields
 inconsistent_fields = {
@@ -22,11 +29,6 @@ fields = [
     "description", "company_addresses", "company_num_employees", "company_revenue",
     "company_description"
 ]
-
-# Helps configure JSON files to proper format
-sys.stdout.reconfigure(encoding='utf-8')
-
-
 def load_json_data(file_path):
     """Loads JSON as ASCII for proper identification and structure."""
     job_listings = []
@@ -47,7 +49,7 @@ def load_json_data(file_path):
 
 
 def reformat_job_data(job):
-    """Reformats JSON structure if needed."""
+    """Reformat JSON structure if needed."""
     reformatted_job = {col: None for col in fields}
     for key, value in job.items():
         mapped_key = inconsistent_fields.get(key, key)
@@ -61,7 +63,8 @@ def select_job(job_listings):
     print("\nAvailable Job Listings:")
     for index, job in enumerate(job_listings, start=1):
         if isinstance(job, dict):
-            print(f"{index}. {job.get('title', 'Unknown Job')} at {job.get('company', 'Unknown Company')}")
+            print(f"{index}. {job.get('title', 'Unknown Job')}"
+                  f" at {job.get('company', 'Unknown Company')}")
         else:
             print(f"{index}. Invalid job format")
 
@@ -81,7 +84,8 @@ def gather_user_details():
     name = input("Full Name: ").strip()
     university = input("University (or education background): ").strip()
     experience = input(
-        "Briefly describe your experience (e.g., programming languages, software development, etc.): "
+        "Briefly describe your experience "
+        "(e.g., programming languages, software development, etc.): "
     ).strip()
 
     projects = []
@@ -111,7 +115,9 @@ def generate_resume(job, user_details):
         f"My name is {user_details['name']}, and I am a student at {user_details['university']}. "
         f"I have experience in {user_details['experience']}.\n"
         f"I have worked on various projects, including:\n"
-        f"{chr(10).join(user_details['projects']) if user_details['projects'] else '- No projects listed'}"
+        f"{chr(10).join(user_details['projects'])}"
+        if user_details['projects'] else
+        "- No projects listed"
     )
 
     prompt = (
@@ -187,11 +193,11 @@ def main():
     print("\nGenerated Resume:\n", resume_text)
 
     save_path = f"generated_resume_{job['title'].replace(' ', '_')}.md"
-    with open(save_path, "w") as file:
+    with open(save_path, "w", encoding="utf-8") as file:
         file.write(resume_text)
 
     print(f"\nResume saved to {save_path}")
 
-
+# some functions and comments added by Google Ai
 if __name__ == "__main__":
     main()
