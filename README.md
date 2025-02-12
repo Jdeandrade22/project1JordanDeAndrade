@@ -1,19 +1,17 @@
+Sprint1:
 ## **Jordan DeAndrade - COMP490 Capstone - Project 1**
+I decided to choose Google AI for this project because it did what I needed it to do and it was free and quick
 
-## **Project Overview**
+The AI Prompt that I chose in this script is: prompt = (
+        f"""Given the following job title: {job_title} at {company_name}\n"
+        f"Job description:\n{job_description}\n"
+        f"And the following personal description: {personal_description}\n"
+        f"Please generate a resume in markdown format tailored to this job."""
+    )
 
-This project is designed to generate tailored resumes based on job listings. It integrates Google Gemini API to generate resume content dynamically. The program processes job listings from a JSON file, prompts the user for relevant details, and constructs a customized resume in markdown format.
-
-## **Features**  
-
-- **Reads and processes job listings** from `rapid_jobs2.json`.  
-- **Provides a list of available jobs** for selection.  
-- **Prompts the user for personal details** and relevant experience.  
-- **Uses Google Gemini AI** to generate a resume.  
-- **Saves the generated resume** in a Markdown file.
-
+I found this to work the best because it is the most specific with the user inputs and would return the closest presentable resume
+ 
 ## **Prerequisites**  
-
 - **Python 3.x**  
 - **`google-generativeai` package**  
 - **A valid API key** stored in `api.py`  
@@ -40,6 +38,7 @@ Ensure rapid_jobs2.json contains valid job listings in JSON format.
 Run the script:
 ```sh
 python main.py
+python test_data_loading.py
 ```
 Follow the on-screen prompts:
 
@@ -51,13 +50,11 @@ Enter key projects (optional)
 
 The AI will generate a resume based on the input.
 ```sh
-
 The generated resume will be saved as generated_resume_<job_title>.md.
 ```
-
 ## **Error Handling**
 
-Handles invalid JSON lines in rapid_jobs2.json
+Handles invalid JSON lines in rapid_jobs2.json and rapidResults (1).json
 
 Ensures job listings are properly loaded before proceeding
 
@@ -68,7 +65,13 @@ Validates user input for job selection
 The generated resume is displayed on the console
 
 A markdown file containing the resume is saved in the project directory
+A database where all of the potential jobs are listed
 
+Sprint2:
+Able to read rapidResults.json
+
+implimented test cases in test_data_loading.py to test json loading and db table creation
+both scripts were linted with flake8
 ## **Author**
 
 Jordan DeAndrade
