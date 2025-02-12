@@ -27,8 +27,8 @@ fields = [
 sys.stdout.reconfigure(encoding='utf-8')
 
 
-# Loads JSON as ASCII for proper identification and structure
 def load_json_data(file_path):
+    """Loads JSON as ASCII for proper identification and structure."""
     job_listings = []
     try:
         with open(file_path, "r", encoding="ascii") as file:
@@ -46,8 +46,8 @@ def load_json_data(file_path):
     return job_listings
 
 
-# Reformats JSON structure if needed
 def reformat_job_data(job):
+    """Reformats JSON structure if needed."""
     reformatted_job = {col: None for col in fields}
     for key, value in job.items():
         mapped_key = inconsistent_fields.get(key, key)
@@ -56,8 +56,8 @@ def reformat_job_data(job):
     return reformatted_job
 
 
-# Selects a job from the list
 def select_job(job_listings):
+    """Selects a job from the list."""
     print("\nAvailable Job Listings:")
     for index, job in enumerate(job_listings, start=1):
         if isinstance(job, dict):
@@ -75,13 +75,14 @@ def select_job(job_listings):
             print("Invalid input, please enter a number.")
 
 
-# Gains info about the user for the resume
 def gather_user_details():
+    """Gathers user information for the resume."""
     print("\nLet's customize your resume. Please answer the following questions:")
     name = input("Full Name: ").strip()
     university = input("University (or education background): ").strip()
     experience = input(
-        "Briefly describe your experience (e.g., programming languages, software development, etc.): ").strip()
+        "Briefly describe your experience (e.g., programming languages, software development, etc.): "
+    ).strip()
 
     projects = []
     print("\nEnter your key projects (press Enter when done):")
@@ -99,37 +100,38 @@ def gather_user_details():
     }
 
 
-# Generates resume with user info while prompting AI
 def generate_resume(job, user_details):
+    """Generates resume with user info while prompting AI."""
     job = reformat_job_data(job)
     job_description = job.get("description", "No description available")
     job_title = job.get("title", "Unknown Job Title")
     company_name = job.get("company", "Unknown Company")
 
-    personal_description = f"""
-My name is {user_details['name']}, and I am a student at {user_details['university']}. I have experience in {user_details['experience']}.
-I have worked on various projects, including:
-{chr(10).join(user_details['projects']) if user_details['projects'] else '- No projects listed'}
-"""
+    personal_description = (
+        f"My name is {user_details['name']}, and I am a student at {user_details['university']}. "
+        f"I have experience in {user_details['experience']}.\n"
+        f"I have worked on various projects, including:\n"
+        f"{chr(10).join(user_details['projects']) if user_details['projects'] else '- No projects listed'}"
+    )
 
-    prompt = f"""Given the following job title: {job_title} at {company_name}
-Job description:
-{job_description}
-And the following personal description: {personal_description}
-Please generate a resume in markdown format tailored to this job.
-"""
-    # Calling AI
+    prompt = (
+        f"""Given the following job title: {job_title} at {company_name}\n"
+        f"Job description:\n{job_description}\n"
+        f"And the following personal description: {personal_description}\n"
+        f"Please generate a resume in markdown format tailored to this job."""
+    )
+
     gen_model = genai.GenerativeModel("gemini-1.5-flash")
     response = gen_model.generate_content(prompt)
     return response.text
 
 
-# Creates the database
 def create_database():
-    conn = sqlite3.connect("savedJobs.db")  # Change to savedJobs.db
+    """Creates the database."""
+    conn = sqlite3.connect("savedJobs.db")
     cursor = conn.cursor()
 
-    cursor.execute(""" 
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS job_listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             site TEXT, job_url TEXT, job_url_direct TEXT, title TEXT, company TEXT,
@@ -145,8 +147,8 @@ def create_database():
     conn.close()
 
 
-# Inserts job data into the database
 def insert_job_data(jobs):
+    """Inserts job data into the database."""
     conn = sqlite3.connect("savedJobs.db")
     cursor = conn.cursor()
 
@@ -163,8 +165,8 @@ def insert_job_data(jobs):
     conn.close()
 
 
-# Main function
 def main():
+    """Main function."""
     data_files = ["rapidResults (1).json", "rapid_jobs2.json"]
     job_listings = []
     for file_path in data_files:
@@ -174,7 +176,6 @@ def main():
         print("No job listings found. Please check the files.")
         return
 
-    # Reformat and insert jobs into the database
     reformatted_jobs = [reformat_job_data(job) for job in job_listings]
     create_database()
     insert_job_data(reformatted_jobs)
@@ -183,8 +184,7 @@ def main():
     user_details = gather_user_details()
     resume_text = generate_resume(job, user_details)
 
-    print("\nGenerated Resume:\n")
-    print(resume_text)
+    print("\nGenerated Resume:\n", resume_text)
 
     save_path = f"generated_resume_{job['title'].replace(' ', '_')}.md"
     with open(save_path, "w") as file:
@@ -195,5 +195,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-#some functions proviveded with use of google ai
