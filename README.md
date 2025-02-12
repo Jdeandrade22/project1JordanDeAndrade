@@ -67,7 +67,7 @@ The generated resume is displayed on the console
 A markdown file containing the resume is saved in the project directory
 A database where all of the potential jobs are listed
 
-Sprint2:
+## Sprint2:
 Able to read rapidResults.json
 
 implimented test cases in test_data_loading.py to test json loading and db table creation
