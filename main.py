@@ -19,16 +19,35 @@ sys.stdout.reconfigure(encoding="utf-8")
 inconsistent_fields = {
     "employment_type": "job_type",
     "url": "job_url",
-    "salary_range": "salary_source"
+    "salary_range": "salary_source",
 }
 
 # Params the script filters through the JSON with
 fields = [
-    "site", "job_url", "job_url_direct", "title", "company", "location", "job_type",
-    "date_posted", "salary_source", "interval", "min_amount", "max_amount", "currency",
-    "is_remote", "job_level", "job_function", "company_industry", "listing_type", "emails",
-    "description", "company_addresses", "company_num_employees", "company_revenue",
-    "company_description"
+    "site",
+    "job_url",
+    "job_url_direct",
+    "title",
+    "company",
+    "location",
+    "job_type",
+    "date_posted",
+    "salary_source",
+    "interval",
+    "min_amount",
+    "max_amount",
+    "currency",
+    "is_remote",
+    "job_level",
+    "job_function",
+    "company_industry",
+    "listing_type",
+    "emails",
+    "description",
+    "company_addresses",
+    "company_num_employees",
+    "company_revenue",
+    "company_description",
 ]
 
 
@@ -57,9 +76,7 @@ def reformat_job_data(job):
     for key, value in job.items():
         mapped_key = inconsistent_fields.get(key, key)
         if mapped_key in reformatted_job:
-            reformatted_job[mapped_key] = (
-                str(value) if value is not None else None
-            )
+            reformatted_job[mapped_key] = str(value) if value is not None else None
     return reformatted_job
 
 
@@ -68,14 +85,19 @@ def select_job(job_listings):
     print("\nAvailable Job Listings:")
     for index, job in enumerate(job_listings, start=1):
         if isinstance(job, dict):
-            print(f"{index}. {job.get('title', 'Unknown Job')} at "
-                  f"{job.get('company', 'Unknown Company')}")
+            print(
+                f"{index}. {job.get('title', 'Unknown Job')} at "
+                f"{job.get('company', 'Unknown Company')}"
+            )
         else:
             print(f"{index}. Invalid job format")
 
     while True:
         try:
-            choice = int(input("\nEnter the number of the job you'd like to apply for: ")) - 1
+            choice = (
+                int(input("\nEnter the number of the job you'd like to apply for: "))
+                - 1
+            )
             if 0 <= choice < len(job_listings):
                 return job_listings[choice]
             print("Invalid choice, please enter a valid job number.")
@@ -105,7 +127,7 @@ def gather_user_details():
         "name": name,
         "university": university,
         "experience": experience,
-        "projects": projects
+        "projects": projects,
     }
 
 
@@ -121,15 +143,14 @@ def generate_resume(job, user_details):
         f"I have experience in {user_details['experience']}.\n"
         f"I have worked on various projects, including:\n"
         f"{chr(10).join(user_details['projects'])}"
-        if user_details['projects'] else "- No projects listed"
+        if user_details["projects"]
+        else "- No projects listed"
     )
 
-    prompt = (
-        f"""Given the following job title: {job_title} at {company_name}\n"
+    prompt = f"""Given the following job title: {job_title} at {company_name}\n"
         f"Job description:\n{job_description}\n"
         f"And the following personal description: {personal_description}\n"
         f"Please generate a resume in markdown format tailored to this job."""
-    )
 
     gen_model = genai.GenerativeModel("gemini-1.5-flash")
     response = gen_model.generate_content(prompt)
@@ -141,7 +162,8 @@ def create_database():
     conn = sqlite3.connect("savedJobs.db")
     cursor = conn.cursor()
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS job_listings (
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS job_listings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         site TEXT, job_url TEXT, job_url_direct TEXT, title TEXT, company TEXT,
         location TEXT, job_type TEXT, date_posted TEXT, salary_source TEXT,
@@ -149,7 +171,8 @@ def create_database():
         is_remote TEXT, job_level TEXT, job_function TEXT, company_industry TEXT,
         listing_type TEXT, emails TEXT, description TEXT, company_addresses TEXT,
         company_num_employees TEXT, company_revenue TEXT, company_description TEXT
-    )""")
+    )"""
+    )
 
     conn.commit()
     conn.close()
@@ -165,7 +188,9 @@ def insert_job_data(jobs):
         values = tuple(job.values())
 
         placeholders = ", ".join(["?"] * len(values))
-        sql_query = f"INSERT INTO job_listings ({', '.join(columns)}) VALUES ({placeholders})"
+        sql_query = (
+            f"INSERT INTO job_listings ({', '.join(columns)}) VALUES ({placeholders})"
+        )
 
         cursor.execute(sql_query, values)
 

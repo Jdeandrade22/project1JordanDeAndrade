@@ -16,10 +16,13 @@ def insert_job_data(job_listings, db_file="test_jobs.db"):
     cursor = conn.cursor()
 
     for job in job_listings:
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO job_listings (title, company, location)
             VALUES (?, ?, ?)
-        """, (job["title"], job["company"], job["location"]))
+        """,
+            (job["title"], job["company"], job["location"]),
+        )
 
     conn.commit()
     conn.close()
@@ -32,14 +35,16 @@ def create_database():
     conn = sqlite3.connect(db_file)
     cursor = conn.cursor()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS job_listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             company TEXT,
             location TEXT
         )
-    """)
+    """
+    )
 
     conn.commit()
     conn.close()
@@ -60,7 +65,7 @@ def test_database_operations():
     test_job = {
         "title": "Backend Developer",
         "company": "StartupX",
-        "location": "San Francisco"
+        "location": "San Francisco",
     }
 
     # Insert job data into the database
@@ -102,7 +107,7 @@ def test_load_json_data():
     """Test loading job data from a JSON file."""
     test_data = [
         {"title": "Software Engineer", "company": "Tech Corp", "location": "Remote"},
-        {"title": "Data Scientist", "company": "Data Inc", "location": "New York"}
+        {"title": "Data Scientist", "company": "Data Inc", "location": "New York"},
     ]
     test_file = "test_jobs.json"
 
@@ -115,8 +120,12 @@ def test_load_json_data():
     loaded_data = load_json_data(test_file)
 
     # Assertions
-    assert len(loaded_data) == len(test_data), "Loaded data count does not match expected count."
-    assert loaded_data[0]["title"] == "Software Engineer", "First job title does not match."
+    assert len(loaded_data) == len(
+        test_data
+    ), "Loaded data count does not match expected count."
+    assert (
+        loaded_data[0]["title"] == "Software Engineer"
+    ), "First job title does not match."
     assert loaded_data[1]["company"] == "Data Inc", "Second job company does not match."
 
     # Cleanup
