@@ -1,30 +1,28 @@
 import sqlite3
 import PySimpleGUI as sg
+from main import generate_resume
 
 def fetch_jobs():
     """Fetches job listings from the database."""
     conn = sqlite3.connect('savedJobs.db')
     cursor = conn.cursor()
-    try:
-        cursor.execute("SELECT id, title, company, location FROM job_listings")
-        jobs = cursor.fetchall()
-    except sqlite3.OperationalError as e:
-        sg.popup_error(f"Database error: {e}", font=("Comic Sans MS", 12))
-        jobs = []
+    cursor.execute("SELECT id, title, company, location, description FROM job_listings")
+    jobs = cursor.fetchall()
     conn.close()
     return jobs
 
-def save_user_data(user_info):
-    """Saves the user's data into the database."""
+def load_job_details(job_id, window):
+    """Loads job details into the job description box."""
     conn = sqlite3.connect('savedJobs.db')
     cursor = conn.cursor()
-    cursor.execute("""
-    INSERT INTO user_data (name, email, phone, github_linkedin, projects, classes, other)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (user_info['name'], user_info['email'], user_info['phone'],
-          user_info['github_linkedin'], user_info['projects'], user_info['classes'], user_info['other']))
-    conn.commit()
+    cursor.execute("SELECT description FROM job_listings WHERE id=?", (job_id,))
+    job = cursor.fetchone()
     conn.close()
+
+    if job:
+        window['-JOB_DETAILS-'].update(job[0])
+    else:
+        sg.popup_error("Job details not found!", font=("Comic Sans MS", 12))
 
 def main():
     sg.theme_background_color("#1A1A1A")
@@ -66,7 +64,7 @@ def main():
          sg.InputText(key='-OTHER-', font=("Comic Sans MS", 12), background_color="#333333", text_color="white")],
 
         [sg.Button('Save Information', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
-        [sg.Button('Generate resume', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
+        [sg.Button('Generate Resume', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
         [sg.Button('Exit', size=(20, 1), font=("Comic Sans MS", 12, "bold"), button_color=("white", "red"))]
     ]
 
@@ -76,48 +74,43 @@ def main():
         event, values = window.read()
 
         if event in (sg.WINDOW_CLOSED, 'Exit'):
-            break
+            if sg.popup_yes_no("Are you sure you want to exit?", font=("Comic Sans MS", 12)) == "Yes":
+                break  # Break the loop and close the window
 
-        if event == '-JOB_LIST-':
-            if values['-JOB_LIST-']:
-                selected_job_text = values['-JOB_LIST-'][0]
-                selected_job_id = next(
-                    (job[0] for job in job_listings if f"{job[1]} - {job[2]} ({job[3]})" == selected_job_text),
-                    None
-                )
-
-                if selected_job_id is None:
-                    sg.popup_error("Job not found in database!", font=("Comic Sans MS", 12))
-                    continue
-
-                conn = sqlite3.connect('Project1ProfDemoPython2025/savedJobs.db')
-                cursor = conn.cursor()
-                cursor.execute("SELECT * FROM job_listings WHERE id=?", (selected_job_id,))
-                job_details = cursor.fetchone()
-                conn.close()
-
-                if job_details:
-                    job_details_text = f"Title: {job_details[1]}\nCompany: {job_details[2]}\nLocation: {job_details[3]}\n" \
-                                       f"Description: {job_details[4]}\nSalary: {job_details[5]} - {job_details[6]}"
-                    window['-JOB_DETAILS-'].update(job_details_text)
-                else:
-                    sg.popup_error("Job details not found!", font=("Comic Sans MS", 12))
-
-        if event == 'Save Information':
-            user_info = {
-                'name': values['-NAME-'],
-                'email': values['-EMAIL-'],
-                'phone': values['-PHONE-'],
-                'github_linkedin': values['-GITHUB_LINKEDIN-'],
-                'projects': values['-PROJECTS-'],
-                'classes': values['-CLASSES-'],
-                'other': values['-OTHER-'],
+        if event == 'Generate Resume':
+            selected_job_index = values['-JOB_LIST-']
+            user_details = {
+                "name": values.get('-NAME-', ''),
+                "email": values.get('-EMAIL-', ''),
+                "phone": values.get('-PHONE-', ''),
+                "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),  # Use .get() to avoid KeyError
+                "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
+                "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
+                "other": values.get('-OTHER-', ''),
             }
 
-            save_user_data(user_info)
-            sg.popup('Your information has been saved!', font=("Comic Sans MS", 12))
+            if selected_job_index:
+                selected_job_text = selected_job_index[0]
+                selected_job = next(
+                    (job for job in job_listings if f"{job[1]} - {job[2]} ({job[3]})" == selected_job_text), None)
 
-    window.close()
+                if selected_job:
+                    # Call generate_resume with job and user_details
+                    resume = generate_resume(selected_job, user_details)
+                    sg.popup("Generated Resume", resume, font=("Comic Sans MS", 12))  # Display the resume
+                else:
+                    sg.popup_error("Selected job not found!", font=("Comic Sans MS", 12))
+            else:
+                sg.popup_error("Please select a job to generate the resume!", font=("Comic Sans MS", 12))
+
+        if event == '-JOB_LIST-' and values['-JOB_LIST-']:
+            selected_job_text = values['-JOB_LIST-'][0]
+            selected_job = next((job for job in job_listings if f"{job[1]} - {job[2]} ({job[3]})" == selected_job_text),
+                                None)
+            if selected_job:
+                load_job_details(selected_job[0], window)
+
+    window.close()  # Close the window only after breaking the loop
 
 if __name__ == "__main__":
-        main()
+    main()
