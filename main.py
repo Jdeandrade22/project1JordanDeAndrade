@@ -193,6 +193,24 @@ def create_database():
 
     conn.commit()
     conn.close()
+def create_user_table():
+    """Creates a table for storing user details if it does not exist."""
+    conn = sqlite3.connect('savedJobs.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_details (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            email TEXT,
+            phone TEXT,
+            github_linkedin TEXT,
+            projects TEXT,
+            classes TEXT,
+            other TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
 
 def insert_job_data(jobs):
