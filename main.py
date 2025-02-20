@@ -3,7 +3,7 @@
 import json
 import sys
 import google.generativeai as genai
-from Project1ProfDemoPython2025.api_secrets import api_key  # Ensure 'api_secrets.py' exists
+from api_secrets import api_key
 
 
 # Configure the API
@@ -128,36 +128,55 @@ def gather_user_details():
         "projects": projects,
     }
 
-
 def generate_resume(job, user_details):
-    """Generates resume with user info while prompting AI."""
+    """Generates a tailored resume based on the job posting and user details."""
+
     job = reformat_job_data(job)
     job_description = job.get("description", "No description available")
     job_title = job.get("title", "Unknown Job Title")
     company_name = job.get("company", "Unknown Company")
 
-    personal_description = (
-        f"My name is {user_details['name']}, and I am a student at {user_details['university']}. "
-        f"I have experience in {user_details['experience']}.\n"
-        f"I have worked on various projects, including:\n"
-        f"{chr(10).join(user_details['projects'])}"
-        if user_details["projects"]
-        else "- No projects listed"
+    # Build personal details section dynamically
+    personal_details = (
+        f"My name is {user_details.get('name', 'N/A')}, and I am a student at {user_details.get('university', 'an unspecified university')}.\n"
+        f"I have experience in {user_details.get('experience', 'relevant fields')}.\n"
+        f"I have worked on projects including:\n"
+        f"{chr(10).join(user_details.get('projects', ['No projects listed']))}\n"
+        f"I have taken courses such as:\n"
+        f"{chr(10).join(user_details.get('classes', ['No classes listed']))}\n"
+        f"My GitHub or LinkedIn profile can be found here: {user_details.get('github_linkedin', 'N/A')}.\n"
+        f"Additional information:\n{user_details.get('other', 'No additional information provided.')}"
     )
 
-    prompt = f"""Given the following job title: {job_title} at {company_name}\n"
-        f"Job description:\n{job_description}\n"
-        f"And the following personal description: {personal_description}\n"
-        f"Please generate a resume in markdown format tailored to this job."""
+    # Improved AI prompt
+    prompt = f"""You are an expert resume writer. Generate a resume in **Markdown format** that highlights my skills, experience, and projects while aligning with the given job.
 
+**Job Details:**
+- **Job Title:** {job_title}
+- **Company:** {company_name}
+- **Description:** {job_description}
+
+**Personal Information:**
+{personal_details}
+
+### Instructions:
+- Format the resume professionally using Markdown.
+- Tailor the resume to match the job description.
+- Highlight relevant skills, coursework, and projects.
+- Keep it concise but impactful.
+
+Please generate the resume now."""
+
+    # Call AI model to generate response
     gen_model = genai.GenerativeModel("gemini-1.5-flash")
     response = gen_model.generate_content(prompt)
+
     return response.text
 
 
 def create_database():
     """Creates the database."""
-    conn = sqlite3.connect("Project1ProfDemoPython2025/savedJobs.db")
+    conn = sqlite3.connect("savedJobs.db")
     cursor = conn.cursor()
 
     cursor.execute(
@@ -178,7 +197,7 @@ def create_database():
 
 def insert_job_data(jobs):
     """Inserts job data into the database."""
-    conn = sqlite3.connect("Project1ProfDemoPython2025/savedJobs.db")
+    conn = sqlite3.connect("savedJobs.db")
     cursor = conn.cursor()
 
     for job in jobs:

@@ -24,6 +24,11 @@ def load_job_details(job_id, window):
     else:
         sg.popup_error("Job details not found!", font=("Comic Sans MS", 12))
 
+def tuple_to_dict(job_tuple):
+    """Converts a job tuple to a dictionary."""
+    keys = ["id", "title", "company", "location", "description"]
+    return dict(zip(keys, job_tuple))
+
 def main():
     sg.theme_background_color("#1A1A1A")
     sg.theme_text_color("white")
@@ -95,9 +100,13 @@ def main():
                     (job for job in job_listings if f"{job[1]} - {job[2]} ({job[3]})" == selected_job_text), None)
 
                 if selected_job:
-                    # Call generate_resume with job and user_details
-                    resume = generate_resume(selected_job, user_details)
-                    sg.popup("Generated Resume", resume, font=("Comic Sans MS", 12))  # Display the resume
+                    # Convert the tuple to a dictionary
+                    job_dict = tuple_to_dict(selected_job)
+                    # Call generate_resume with job_dict and user_details
+                    resume = generate_resume(job_dict, user_details)
+                    print(f"Resume output: {resume}")
+                    sg.popup_no_wait("Generated Resume", resume, font=("Comic Sans MS", 12))
+
                 else:
                     sg.popup_error("Selected job not found!", font=("Comic Sans MS", 12))
             else:
