@@ -122,3 +122,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+    add an element that allows the user to save this information - save it to the same database that you created in sprint2
