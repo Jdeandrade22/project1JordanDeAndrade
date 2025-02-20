@@ -105,7 +105,6 @@ def main():
                     # Call generate_resume with job_dict and user_details
                     resume = generate_resume(job_dict, user_details)
                     print(f"Resume output: {resume}")
-                    sg.popup_no_wait("Generated Resume", resume, font=("Comic Sans MS", 12))
 
                 else:
                     sg.popup_error("Selected job not found!", font=("Comic Sans MS", 12))
