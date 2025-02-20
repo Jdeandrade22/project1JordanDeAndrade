@@ -123,6 +123,7 @@ def main():
         [sg.Text('Load Saved User', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
         sg.Combo(values=[], key='-USER_SELECT-', readonly=True, enable_events=True, size=(30, 1),
                  font=("Comic Sans MS", 12), background_color="#333333", text_color="white")],
+        [sg.Button('Clear', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
 
     ]
     window = sg.Window('Job Listings and Resume Builder', layout, background_color="#1A1A1A", finalize=True)
@@ -154,6 +155,13 @@ def main():
             if user_details["name"] and user_details["email"] and user_details["phone"]:
                 save_user_details(user_details)
                 sg.popup("User information saved successfully!", font=("Comic Sans MS", 12))
+
+                # Fetch updated user list from the database
+                updated_users = fetch_users()
+                user_dropdown_values = [f"{user[0]} - {user[1]}" for user in updated_users]
+
+                # Update the dropdown in the GUI
+                window['-USER_SELECT-'].update(values=user_dropdown_values)
             else:
                 sg.popup_error("Please fill out at least Name, Email, and Phone!", font=("Comic Sans MS", 12))
 
@@ -198,12 +206,17 @@ def main():
             selected_user_id = selected_user_text.split(" - ")[0]  # Extract ID from "ID - Name"
             load_user_details(selected_user_id, window)
 
+        if event == 'Clear':
+            window['-NAME-'].update('')
+            window['-EMAIL-'].update('')
+            window['-PHONE-'].update('')
+            window['-GITHUB_LINKEDIN-'].update('')
+            window['-PROJECTS-'].update('')
+            window['-CLASSES-'].update('')
+            window['-OTHER-'].update('')
 
     window.close()  # Close the window only after breaking the loop
 
 if __name__ == "__main__":
     create_user_table()  # Ensure the user table exists
     main()
-
-
-    # add an element that allows the user to save this information - save it to the same database that you created in sprint2
