@@ -86,16 +86,30 @@ def main():
     sg.theme_button_color(("white", "#5A5AFF"))
 
     job_listings = fetch_jobs()
+    table_data = [[job[0], job[1], job[2], job[3], job[4]] for job in job_listings]  # Extract all job details
+    headings = ['ID', 'Title', 'Company', 'Location', 'Description']  # Column headings
 
     layout = [
         [sg.Text('Select a Job from the List', font=("Comic Sans MS", 14, "bold"), text_color="#FFFF00",
                  background_color="#1A1A1A")],
-        [sg.Listbox(values=[f"{job[1]} - {job[2]} ({job[3]})" for job in job_listings],
-                    size=(50, 10), key='-JOB_LIST-', enable_events=True,
-                    background_color="#333333", text_color="white", font=("Comic Sans MS", 12))],
+        [sg.Table(
+            values=table_data,
+            headings=headings,
+            auto_size_columns=True,
+            display_row_numbers=False,
+            justification='left',
+            key='-JOB_TABLE-',
+            row_height=35,
+            num_rows=10,
+            background_color="#333333",
+            text_color="white",
+            font=("Comic Sans MS", 12),
+            selected_row_colors=("black", "#5A5AFF"),  # Change color on selection
+            enable_events=True
+        )],
         [sg.Text('Job Details:', font=("Comic Sans MS", 12, "bold"), text_color="white",
                  background_color="#1A1A1A")],
-        [sg.Multiline('', size=(50, 5), key='-JOB_DETAILS-', disabled=True,
+        [sg.Multiline('', size=(70, 15), key='-JOB_DETAILS-', disabled=True,
                       background_color="#333333", text_color="white", font=("Comic Sans MS", 12))],
 
         [sg.Text('Enter Your Information', font=("Comic Sans MS", 14, "bold"), text_color="#FFFF00",
@@ -118,7 +132,7 @@ def main():
          sg.InputText(key='-OTHER-', font=("Comic Sans MS", 12), background_color="#333333", text_color="white")],
 
         [sg.Button('Save Information', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
-        [sg.Button('Generate Resume', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
+        # [sg.Button('Coming soon', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
         [sg.Button('Exit', size=(20, 1), font=("Comic Sans MS", 12, "bold"), button_color=("white", "red"))],
         [sg.Text('Load Saved User', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
         sg.Combo(values=[], key='-USER_SELECT-', readonly=True, enable_events=True, size=(30, 1),
@@ -165,41 +179,39 @@ def main():
             else:
                 sg.popup_error("Please fill out at least Name, Email, and Phone!", font=("Comic Sans MS", 12))
 
-        if event == 'Generate Resume':
-            selected_job_index = values['-JOB_LIST-']
-            user_details = {
-                "name": values.get('-NAME-', ''),
-                "email": values.get('-EMAIL-', ''),
-                "phone": values.get('-PHONE-', ''),
-                "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),  # Use .get() to avoid KeyError
-                "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
-                "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
-                "other": values.get('-OTHER-', ''),
-            }
+        # if event == 'Generate Resume':
+        #     selected_job_index = values['-JOB_LIST-']
+        #     user_details = {
+        #         "name": values.get('-NAME-', ''),
+        #         "email": values.get('-EMAIL-', ''),
+        #         "phone": values.get('-PHONE-', ''),
+        #         "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),  # Use .get() to avoid KeyError
+        #         "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
+        #         "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
+        #         "other": values.get('-OTHER-', ''),
+        #     }
+        #
+        #     if selected_job_index:
+        #         selected_job_text = selected_job_index[0]
+        #         selected_job = next(
+        #             (job for job in job_listings if f"{job[1]} - {job[2]} ({job[3]})" == selected_job_text), None)
+        #
+        #         if selected_job:
+        #             # Convert the tuple to a dictionary
+        #             job_dict = tuple_to_dict(selected_job)
+        #             # Call generate_resume with job_dict and user_details
+        #             resume = generate_resume(job_dict, user_details)
+        #             print(f"Resume output: {resume}")
+        #
+        #         else:
+        #             sg.popup_error("Selected job not found!", font=("Comic Sans MS", 12))
+        #     else:
+        #         sg.popup_error("Please select a job to generate the resume!", font=("Comic Sans MS", 12))
 
-            if selected_job_index:
-                selected_job_text = selected_job_index[0]
-                selected_job = next(
-                    (job for job in job_listings if f"{job[1]} - {job[2]} ({job[3]})" == selected_job_text), None)
-
-                if selected_job:
-                    # Convert the tuple to a dictionary
-                    job_dict = tuple_to_dict(selected_job)
-                    # Call generate_resume with job_dict and user_details
-                    resume = generate_resume(job_dict, user_details)
-                    print(f"Resume output: {resume}")
-
-                else:
-                    sg.popup_error("Selected job not found!", font=("Comic Sans MS", 12))
-            else:
-                sg.popup_error("Please select a job to generate the resume!", font=("Comic Sans MS", 12))
-
-        if event == '-JOB_LIST-' and values['-JOB_LIST-']:
-            selected_job_text = values['-JOB_LIST-'][0]
-            selected_job = next((job for job in job_listings if f"{job[1]} - {job[2]} ({job[3]})" == selected_job_text),
-                                None)
-            if selected_job:
-                load_job_details(selected_job[0], window)
+        if event == '-JOB_TABLE-' and values['-JOB_TABLE-']:
+            selected_row_index = values['-JOB_TABLE-'][0]
+            selected_job = job_listings[selected_row_index]
+            load_job_details(selected_job[0], window)
 
         if event == '-USER_SELECT-' and values['-USER_SELECT-']:
             selected_user_text = values['-USER_SELECT-']
