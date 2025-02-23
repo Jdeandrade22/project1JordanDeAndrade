@@ -1,8 +1,6 @@
 import sqlite3
 import PySimpleGUI as sg
-from main import generate_resume
 from main import create_user_table
-
 
 def fetch_jobs():
     """Fetches job listings from the database."""
@@ -13,7 +11,6 @@ def fetch_jobs():
     conn.close()
     return jobs
 
-
 def fetch_users():
     """Fetches saved user names from the database."""
     conn = sqlite3.connect('savedJobs.db')
@@ -22,7 +19,6 @@ def fetch_users():
     users = cursor.fetchall()
     conn.close()
     return users
-
 
 def save_user_details(user_details):
     """Saves user details into the database."""
@@ -43,7 +39,6 @@ def save_user_details(user_details):
     conn.commit()
     conn.close()
 
-
 def load_job_details(job_id, window):
     """Loads job details into the job description box."""
     conn = sqlite3.connect('savedJobs.db')
@@ -57,12 +52,10 @@ def load_job_details(job_id, window):
     else:
         sg.popup_error("Job details not found!", font=("Comic Sans MS", 12))
 
-
 def tuple_to_dict(job_tuple):
     """Converts a job tuple to a dictionary."""
     keys = ["id", "title", "company", "location", "description"]
     return dict(zip(keys, job_tuple))
-
 
 def load_user_details(user_id, window):
     """Loads saved user details into the input fields."""
@@ -140,10 +133,11 @@ def main():
         [sg.Button('Save Information', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
         [sg.Button('Exit', size=(20, 1), font=("Comic Sans MS", 12, "bold"), button_color=("white", "red"))],
         [sg.Text('Load Saved User', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
-         sg.Combo(values=[], key='-USER_SELECT-', readonly=True, enable_events=True, size=(30, 1),
-                  font=("Comic Sans MS", 12), background_color="#333333", text_color="white")],
+        sg.Combo(values=[], key='-USER_SELECT-', readonly=True, enable_events=True, size=(30, 1),
+                 font=("Comic Sans MS", 12), background_color="#333333", text_color="white")],
         [sg.Button('Clear', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
     ]
+
     window = sg.Window('Job Listings and Resume Builder', layout, background_color="#1A1A1A", finalize=True)
 
     # Update the dropdown with saved users
