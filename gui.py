@@ -1,7 +1,7 @@
 """This script provides a GUI for job listings and resume building using SQLite."""
 
 import sqlite3
-import PySimpleGUI as sg
+import PySimpleGUI as Sg
 from main import create_user_table
 
 
@@ -16,7 +16,7 @@ def fetch_jobs():
 
 
 def fetch_users():
-    """Fetches saved user names from the database."""
+    """Fetches saved usernames from the database."""
     conn = sqlite3.connect('savedJobs.db')
     cursor = conn.cursor()
     cursor.execute("SELECT id, name FROM user_details")
@@ -56,7 +56,7 @@ def load_job_details(job_id, window):
     if job:
         window['-JOB_DETAILS-'].update(job[0])
     else:
-        sg.popup_error("Job details not found!", font=("Comic Sans MS", 12))
+        Sg.popup_error("Job details not found!", font=("Comic Sans MS", 12))
 
 
 def tuple_to_dict(job_tuple):
@@ -85,25 +85,25 @@ def load_user_details(user_id, window):
         window['-CLASSES-'].update(user[5])
         window['-OTHER-'].update(user[6])
     else:
-        sg.popup_error("User not found!", font=("Comic Sans MS", 12))
+        Sg.popup_error("User not found!", font=("Comic Sans MS", 12))
 
 
 def main():
     """Main function to run the GUI."""
-    sg.theme_background_color("#1A1A1A")
-    sg.theme_text_color("white")
-    sg.theme_element_background_color("#333333")
-    sg.theme_element_text_color("white")
-    sg.theme_button_color(("white", "#5A5AFF"))
+    Sg.theme_background_color("#1A1A1A")
+    Sg.theme_text_color("white")
+    Sg.theme_element_background_color("#333333")
+    Sg.theme_element_text_color("white")
+    Sg.theme_button_color(("white", "#5A5AFF"))
 
     job_listings = fetch_jobs()
     table_data = [[job[0], job[1], job[2], job[3], job[4]] for job in job_listings]
     headings = ['ID', 'Title', 'Company', 'Location', 'Description']
 
     layout = [
-        [sg.Text('Select a Job from the List', font=("Comic Sans MS", 14, "bold"),
-         text_color="#FFFF00", background_color="#1A1A1A")],
-        [sg.Table(
+        [Sg.Text('Select a Job from the List', font=("Comic Sans MS", 14, "bold"),
+                 text_color="#FFFF00", background_color="#1A1A1A")],
+        [Sg.Table(
             values=table_data,
             headings=headings,
             auto_size_columns=True,
@@ -118,48 +118,48 @@ def main():
             selected_row_colors=("black", "#5A5AFF"),
             enable_events=True
         )],
-        [sg.Text('Job Details:', font=("Comic Sans MS", 12, "bold"),
-         text_color="white", background_color="#1A1A1A")],
-        [sg.Multiline('', size=(70, 15), key='-JOB_DETAILS-', disabled=True,
-         background_color="#333333", text_color="white", font=("Comic Sans MS", 12))],
+        [Sg.Text('Job Details:', font=("Comic Sans MS", 12, "bold"),
+                 text_color="white", background_color="#1A1A1A")],
+        [Sg.Multiline('', size=(70, 15), key='-JOB_DETAILS-', disabled=True,
+                      background_color="#333333", text_color="white", font=("Comic Sans MS", 12))],
 
-        [sg.Text('Enter Your Information', font=("Comic Sans MS", 14, "bold"),
+        [Sg.Text('Enter Your Information', font=("Comic Sans MS", 14, "bold"),
                  text_color="#FFFF00", background_color="#1A1A1A")],
-        [sg.Text('Name', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
-         sg.InputText(key='-NAME-', font=("Comic Sans MS", 12),
+        [Sg.Text('Name', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
+         Sg.InputText(key='-NAME-', font=("Comic Sans MS", 12),
                       background_color="#333333", text_color="white")],
-        [sg.Text('Email', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
-         sg.InputText(key='-EMAIL-', font=("Comic Sans MS", 12),
+        [Sg.Text('Email', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
+         Sg.InputText(key='-EMAIL-', font=("Comic Sans MS", 12),
                       background_color="#333333", text_color="white")],
-        [sg.Text('Phone Number', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
-         sg.InputText(key='-PHONE-', font=("Comic Sans MS", 12),
+        [Sg.Text('Phone Number', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
+         Sg.InputText(key='-PHONE-', font=("Comic Sans MS", 12),
                       background_color="#333333", text_color="white")],
-        [sg.Text('GitHub/LinkedIn', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
-         sg.InputText(key='-GITHUB_LINKEDIN-', font=("Comic Sans MS", 12),
+        [Sg.Text('GitHub/LinkedIn', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
+         Sg.InputText(key='-GITHUB_LINKEDIN-', font=("Comic Sans MS", 12),
                       background_color="#333333", text_color="white")],
-        [sg.Text('Projects (separate with commas)', font=("Comic Sans MS", 12),
-         background_color="#1A1A1A"),
-         sg.InputText(key='-PROJECTS-', font=("Comic Sans MS", 12),
+        [Sg.Text('Projects (separate with commas)', font=("Comic Sans MS", 12),
+                 background_color="#1A1A1A"),
+         Sg.InputText(key='-PROJECTS-', font=("Comic Sans MS", 12),
                       background_color="#333333", text_color="white")],
-        [sg.Text('Classes (separate with commas)', font=("Comic Sans MS", 12),
-         background_color="#1A1A1A"),
-         sg.InputText(key='-CLASSES-', font=("Comic Sans MS", 12),
+        [Sg.Text('Classes (separate with commas)', font=("Comic Sans MS", 12),
+                 background_color="#1A1A1A"),
+         Sg.InputText(key='-CLASSES-', font=("Comic Sans MS", 12),
                       background_color="#333333", text_color="white")],
-        [sg.Text('Other Information', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
-         sg.InputText(key='-OTHER-', font=("Comic Sans MS", 12),
+        [Sg.Text('Other Information', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
+         Sg.InputText(key='-OTHER-', font=("Comic Sans MS", 12),
                       background_color="#333333", text_color="white")],
 
-        [sg.Button('Save Information', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
-        [sg.Button('Exit', size=(20, 1), font=("Comic Sans MS", 12, "bold"),
-         button_color=("white", "red"))],
-        [sg.Text('Load Saved User', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
-         sg.Combo(values=[], key='-USER_SELECT-', readonly=True, enable_events=True,
+        [Sg.Button('Save Information', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
+        [Sg.Button('Exit', size=(20, 1), font=("Comic Sans MS", 12, "bold"),
+                   button_color=("white", "red"))],
+        [Sg.Text('Load Saved User', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
+         Sg.Combo(values=[], key='-USER_SELECT-', readonly=True, enable_events=True,
                   size=(30, 1), font=("Comic Sans MS", 12), background_color="#333333",
                   text_color="white")],
-        [sg.Button('Clear', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
+        [Sg.Button('Clear', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
     ]
 
-    window = sg.Window('Job Listings and Resume Builder', layout,
+    window = Sg.Window('Job Listings and Resume Builder', layout,
                        background_color="#1A1A1A", finalize=True)
 
     saved_users = fetch_users()
@@ -169,9 +169,9 @@ def main():
     while True:
         event, values = window.read()
 
-        if event in (sg.WINDOW_CLOSED, 'Exit'):
-            if sg.popup_yes_no("Are you sure you want to exit?",
-                              font=("Comic Sans MS", 12)) == "Yes":
+        if event in (Sg.WINDOW_CLOSED, 'Exit'):
+            if Sg.popup_yes_no("Are you sure you want to exit?",
+                               font=("Comic Sans MS", 12)) == "Yes":
                 break
 
         if event == 'Save Information':
@@ -187,13 +187,13 @@ def main():
 
             if user_details["name"] and user_details["email"] and user_details["phone"]:
                 save_user_details(user_details)
-                sg.popup("User information saved successfully!", font=("Comic Sans MS", 12))
+                Sg.popup("User information saved successfully!", font=("Comic Sans MS", 12))
 
                 updated_users = fetch_users()
                 user_dropdown_values = [f"{user[0]} - {user[1]}" for user in updated_users]
                 window['-USER_SELECT-'].update(values=user_dropdown_values)
             else:
-                sg.popup_error("Please fill out at least Name, Email, and Phone!",
+                Sg.popup_error("Please fill out at least Name, Email, and Phone!",
                                font=("Comic Sans MS", 12))
 
         if event == '-JOB_TABLE-' and values['-JOB_TABLE-']:
