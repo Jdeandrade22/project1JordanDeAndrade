@@ -3,6 +3,7 @@ import PySimpleGUI as sg
 from main import generate_resume
 from main import create_user_table
 
+
 def fetch_jobs():
     """Fetches job listings from the database."""
     conn = sqlite3.connect('savedJobs.db')
@@ -12,6 +13,7 @@ def fetch_jobs():
     conn.close()
     return jobs
 
+
 def fetch_users():
     """Fetches saved user names from the database."""
     conn = sqlite3.connect('savedJobs.db')
@@ -20,6 +22,7 @@ def fetch_users():
     users = cursor.fetchall()
     conn.close()
     return users
+
 
 def save_user_details(user_details):
     """Saves user details into the database."""
@@ -40,6 +43,7 @@ def save_user_details(user_details):
     conn.commit()
     conn.close()
 
+
 def load_job_details(job_id, window):
     """Loads job details into the job description box."""
     conn = sqlite3.connect('savedJobs.db')
@@ -53,10 +57,12 @@ def load_job_details(job_id, window):
     else:
         sg.popup_error("Job details not found!", font=("Comic Sans MS", 12))
 
+
 def tuple_to_dict(job_tuple):
     """Converts a job tuple to a dictionary."""
     keys = ["id", "title", "company", "location", "description"]
     return dict(zip(keys, job_tuple))
+
 
 def load_user_details(user_id, window):
     """Loads saved user details into the input fields."""
@@ -132,13 +138,11 @@ def main():
          sg.InputText(key='-OTHER-', font=("Comic Sans MS", 12), background_color="#333333", text_color="white")],
 
         [sg.Button('Save Information', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
-        # [sg.Button('Coming soon', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
         [sg.Button('Exit', size=(20, 1), font=("Comic Sans MS", 12, "bold"), button_color=("white", "red"))],
         [sg.Text('Load Saved User', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
-        sg.Combo(values=[], key='-USER_SELECT-', readonly=True, enable_events=True, size=(30, 1),
-                 font=("Comic Sans MS", 12), background_color="#333333", text_color="white")],
+         sg.Combo(values=[], key='-USER_SELECT-', readonly=True, enable_events=True, size=(30, 1),
+                  font=("Comic Sans MS", 12), background_color="#333333", text_color="white")],
         [sg.Button('Clear', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
-
     ]
     window = sg.Window('Job Listings and Resume Builder', layout, background_color="#1A1A1A", finalize=True)
 
@@ -146,7 +150,6 @@ def main():
     saved_users = fetch_users()
     user_dropdown_values = [f"{user[0]} - {user[1]}" for user in saved_users]
     window['-USER_SELECT-'].update(values=user_dropdown_values)
-
 
     while True:
         event, values = window.read()
@@ -179,35 +182,6 @@ def main():
             else:
                 sg.popup_error("Please fill out at least Name, Email, and Phone!", font=("Comic Sans MS", 12))
 
-        # if event == 'Generate Resume':
-        #     selected_job_index = values['-JOB_LIST-']
-        #     user_details = {
-        #         "name": values.get('-NAME-', ''),
-        #         "email": values.get('-EMAIL-', ''),
-        #         "phone": values.get('-PHONE-', ''),
-        #         "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),  # Use .get() to avoid KeyError
-        #         "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
-        #         "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
-        #         "other": values.get('-OTHER-', ''),
-        #     }
-        #
-        #     if selected_job_index:
-        #         selected_job_text = selected_job_index[0]
-        #         selected_job = next(
-        #             (job for job in job_listings if f"{job[1]} - {job[2]} ({job[3]})" == selected_job_text), None)
-        #
-        #         if selected_job:
-        #             # Convert the tuple to a dictionary
-        #             job_dict = tuple_to_dict(selected_job)
-        #             # Call generate_resume with job_dict and user_details
-        #             resume = generate_resume(job_dict, user_details)
-        #             print(f"Resume output: {resume}")
-        #
-        #         else:
-        #             sg.popup_error("Selected job not found!", font=("Comic Sans MS", 12))
-        #     else:
-        #         sg.popup_error("Please select a job to generate the resume!", font=("Comic Sans MS", 12))
-
         if event == '-JOB_TABLE-' and values['-JOB_TABLE-']:
             selected_row_index = values['-JOB_TABLE-'][0]
             selected_job = job_listings[selected_row_index]
@@ -228,6 +202,7 @@ def main():
             window['-OTHER-'].update('')
 
     window.close()  # Close the window only after breaking the loop
+
 
 if __name__ == "__main__":
     create_user_table()  # Ensure the user table exists
