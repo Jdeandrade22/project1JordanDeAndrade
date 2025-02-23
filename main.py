@@ -2,16 +2,15 @@
 
 import json
 import sys
+import sqlite3
 import google.generativeai as genai
 from api_secrets import api_key
-
 
 # Configure the API
 genai.configure(api_key=api_key)
 
 # Helps configure JSON files to proper format
 sys.stdout.reconfigure(encoding="utf-8")
-
 
 # Mapping inconsistent fields
 inconsistent_fields = {
@@ -128,9 +127,9 @@ def gather_user_details():
         "projects": projects,
     }
 
+
 def generate_resume(job, user_details):
     """Generates a tailored resume based on the job posting and user details."""
-
     job = reformat_job_data(job)
     job_description = job.get("description", "No description available")
     job_title = job.get("title", "Unknown Job Title")
@@ -138,13 +137,15 @@ def generate_resume(job, user_details):
 
     # Build personal details section dynamically
     personal_details = (
-        f"My name is {user_details.get('name', 'N/A')}, and I am a student at {user_details.get('university', 'an unspecified university')}.\n"
+        f"My name is {user_details.get('name', 'N/A')}, and I am a student at "
+        f"{user_details.get('university', 'an unspecified university')}.\n"
         f"I have experience in {user_details.get('experience', 'relevant fields')}.\n"
         f"I have worked on projects including:\n"
         f"{chr(10).join(user_details.get('projects', ['No projects listed']))}\n"
         f"I have taken courses such as:\n"
         f"{chr(10).join(user_details.get('classes', ['No classes listed']))}\n"
-        f"My GitHub or LinkedIn profile can be found here: {user_details.get('github_linkedin', 'N/A')}.\n"
+        f"My GitHub or LinkedIn profile can be found here: "
+        f"{user_details.get('github_linkedin', 'N/A')}.\n"
         f"Additional information:\n{user_details.get('other', 'No additional information provided.')}"
     )
 
@@ -193,6 +194,8 @@ def create_database():
 
     conn.commit()
     conn.close()
+
+
 def create_user_table():
     """Creates a table for storing user details if it does not exist."""
     conn = sqlite3.connect('savedJobs.db')
@@ -233,9 +236,6 @@ def insert_job_data(jobs):
     conn.close()
 
 
-import sqlite3
-
-
 def main():
     """Main function."""
     data_files = ["rapidResults (1).json", "rapid_jobs2.json"]
@@ -251,7 +251,6 @@ def main():
     create_database()
     insert_job_data(reformatted_jobs)
 
-# Some functions and comments added by Google AI
 
 if __name__ == "__main__":
     main()
