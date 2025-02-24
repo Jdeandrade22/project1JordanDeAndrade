@@ -150,23 +150,23 @@ def generate_resume(job, user_details):
     )
 
     # Improved AI prompt
-    prompt = f"""You are an expert resume writer. Generate a resume in **Markdown format** that highlights my skills, experience, and projects while aligning with the given job.
-
-**Job Details:**
-- **Job Title:** {job_title}
-- **Company:** {company_name}
-- **Description:** {job_description}
-
-**Personal Information:**
-{personal_details}
-
-### Instructions:
-- Format the resume professionally using Markdown.
-- Tailor the resume to match the job description.
-- Highlight relevant skills, coursework, and projects.
-- Keep it concise but impactful.
-
-Please generate the resume now."""
+    prompt = (
+        "You are an expert resume writer. Generate a resume in **Markdown format** "
+        "that highlights my skills, experience, and projects while aligning with "
+        "the given job.\n\n"
+        "**Job Details:**\n"
+        f"- **Job Title:** {job_title}\n"
+        f"- **Company:** {company_name}\n"
+        f"- **Description:** {job_description}\n\n"
+        "**Personal Information:**\n"
+        f"{personal_details}\n\n"
+        "### Instructions:\n"
+        "- Format the resume professionally using Markdown.\n"
+        "- Tailor the resume to match the job description.\n"
+        "- Highlight relevant skills, coursework, and projects.\n"
+        "- Keep it concise but impactful.\n\n"
+        "Please generate the resume now."
+    )
 
     # Call AI model to generate response
     gen_model = genai.GenerativeModel("gemini-1.5-flash")
@@ -176,14 +176,14 @@ Please generate the resume now."""
 
 
 def create_database():
-    """Creates the database."""
+    """Creates the database with a unique constraint to prevent duplicates."""
     conn = sqlite3.connect("savedJobs.db")
     cursor = conn.cursor()
 
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS job_listings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        site TEXT, job_url TEXT, job_url_direct TEXT, title TEXT, company TEXT,
+        site TEXT, job_url TEXT UNIQUE, job_url_direct TEXT, title TEXT, company TEXT,
         location TEXT, job_type TEXT, date_posted TEXT, salary_source TEXT,
         interval TEXT, min_amount REAL, max_amount REAL, currency TEXT,
         is_remote TEXT, job_level TEXT, job_function TEXT, company_industry TEXT,
@@ -217,7 +217,7 @@ def create_user_table():
 
 
 def insert_job_data(jobs):
-    """Inserts job data into the database."""
+    """Inserts job data into the database, ignoring duplicates."""
     conn = sqlite3.connect("savedJobs.db")
     cursor = conn.cursor()
 
@@ -227,7 +227,7 @@ def insert_job_data(jobs):
 
         placeholders = ", ".join(["?"] * len(values))
         sql_query = (
-            f"INSERT INTO job_listings ({', '.join(columns)}) VALUES ({placeholders})"
+            f"INSERT OR IGNORE INTO job_listings ({', '.join(columns)}) VALUES ({placeholders})"
         )
 
         cursor.execute(sql_query, values)
