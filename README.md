@@ -12,10 +12,7 @@ The AI Prompt that I chose in this script is: prompt = (
 I found this to work the best because it is the most specific with the user inputs and would return the closest presentable resume
  
 ## **Prerequisites**  
-- **Python 3.x**  
-- **`google-generativeai` package**  
-- **A valid API key** stored in `api.py`  
-- **`rapid_jobs2.json`** containing job listings in JSON format  
+see requirements.txt
 
 ## **Installation**  
 
