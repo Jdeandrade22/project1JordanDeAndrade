@@ -72,19 +72,15 @@ Ensures job listings are properly loaded before proceeding
 Validates user input for job selection
 
 ## output
-
-The generated resume is displayed on the console
-
-A markdown file containing the resume is saved in the project directory
-A database where all of the potential jobs are listed
+The user is able to create different presets to apply for resumes in the future updates
+The user is able to view updated GUI with new sectioned tabs in the GUI
+The user is able to put info into the fields when prompted
 
 ## Sprint2:
 Able to read rapidResults.json
 
 implimented test cases in test_data_loading.py to test json loading and db table creation
 all scripts were linted with flake8
-
-
 
 ## **Author**
 
