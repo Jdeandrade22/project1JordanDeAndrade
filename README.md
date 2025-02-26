@@ -48,37 +48,21 @@ see requirements.txt
 1. **Install dependencies:**  
    ```sh
    pip install google-generativeai
-
-   
-
-Ensure api.py contains your API key
-```sh
-api_key = "your_api_key_here" (key may be provided)
-```
-
-
+   pip install PySimpleGui
+   pip install SQLite3
+   pip install unitTest
+   ##api key
 Ensure rapid_jobs2.json contains valid job listings in JSON format.
-
 ## Usage
 
 Run the script:
 ```sh
-python main.py
+python main.py #1 time to generate savedJobs.db
 python gui.py
 python test_data_loading.py
 ```
 Follow the on-screen prompts:
 
-Select a job listing from the displayed list
-
-Enter personal details such as name, education, and experience
-
-Enter key projects (optional)
-
-The AI will generate a resume based on the input.
-```sh
-The generated resume will be saved as generated_resume_<job_title>.md.
-```
 ## **Error Handling**
 
 Handles invalid JSON lines in rapid_jobs2.json and rapidResults (1).json
