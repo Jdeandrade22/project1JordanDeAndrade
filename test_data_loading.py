@@ -116,6 +116,33 @@ def fetch_jobs(conn):
     cursor.execute("SELECT id, title, company, location FROM job_listings")
     return cursor.fetchall()
 
+def fetch_job_details(conn, job_id):
+    """Fetch full job details from the database using the job ID."""
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM job_listings WHERE id = ?", (job_id,))
+    return cursor.fetchone()
+
+
+class TestApp(unittest.TestCase):
+
+    def test_fetch_job_details(self):
+        """Test fetching full job details based on job ID."""
+        self.cursor.execute(
+            """
+            INSERT INTO job_listings (title, company, location, description)
+            VALUES ('Software Engineer', 'Tech Corp', 'Remote', 'Full job description here')
+            """
+        )
+        self.conn.commit()
+
+        job_id = self.cursor.lastrowid  # Get last inserted job's ID
+        job_details = fetch_job_details(self.conn, job_id)
+
+        self.assertIsNotNone(job_details)
+        self.assertEqual(job_details[1], 'Software Engineer')  # Check title
+        self.assertEqual(job_details[2], 'Tech Corp')  # Check company
+        self.assertEqual(job_details[3], 'Remote')  # Check location
+        self.assertEqual(job_details[4], 'Full job description here')  # Check description
 
 def fetch_users(conn):
     """Fetch user details from the database."""
@@ -272,3 +299,5 @@ class TestApp(unittest.TestCase):
 if __name__ == "__main__":
     main()
     unittest.main()
+
+#
