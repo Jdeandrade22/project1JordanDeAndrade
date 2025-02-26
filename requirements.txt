@@ -1,0 +1,5 @@
+-PySimpleGui
+-SQLite3
+-google.generativeai
+-unitTest
+-Api Key
