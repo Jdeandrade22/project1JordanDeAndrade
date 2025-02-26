@@ -103,6 +103,8 @@ test_fetch_jobs()
 
 Verifies that job listings can be retrieved from the database.
 
+added a requirements.txt
+
 ## **Author**
 
 Jordan DeAndrade
