@@ -298,6 +298,8 @@ class TestApp(unittest.TestCase):
 
 if __name__ == "__main__":
     main()
+
+#some functions provided through google Ai
     unittest.main()
 
 #
