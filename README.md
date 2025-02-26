@@ -1,15 +1,44 @@
 Sprint1:
 ## **Jordan DeAndrade - COMP490 Capstone - Project 1**
-I decided to choose Google AI for this project because it did what I needed it to do and it was free and quick
 
-The AI Prompt that I chose in this script is: prompt = (
-        f"""Given the following job title: {job_title} at {company_name}\n"
-        f"Job description:\n{job_description}\n"
-        f"And the following personal description: {personal_description}\n"
-        f"Please generate a resume in markdown format tailored to this job."""
-    )
+##sprint3
+-Implemented User features
+*save templates for future application use 
+*implemented testing 
 
-I found this to work the best because it is the most specific with the user inputs and would return the closest presentable resume
+-testing:
+test_database_operations()
+
+Ensures job listings table creation and data insertion work correctly.
+
+test_load_json_data()
+
+Verifies that job listings are correctly loaded from a JSON file.
+
+test_fetch_job_details()
+
+Tests that a job's full details can be retrieved using its ID.
+
+test_save_user_details()
+
+Checks if user details are correctly saved in the database.
+
+test_fetch_users()
+
+Ensures that saved user details can be fetched successfully.
+
+test_fetch_jobs()
+
+Verifies that job listings can be retrieved from the database.
+
+-added a requirements.txt
+
+
+-removed generating features of program for sprint
+
+
+-New GUI Interface 
+
  
 ## **Prerequisites**  
 see requirements.txt
