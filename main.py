@@ -251,6 +251,7 @@ def main():
     create_database()
     insert_job_data(reformatted_jobs)
 
+#some functions provided through google Ai
 
 if __name__ == "__main__":
     main()
