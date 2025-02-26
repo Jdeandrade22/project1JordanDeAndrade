@@ -38,6 +38,7 @@ Ensure rapid_jobs2.json contains valid job listings in JSON format.
 Run the script:
 ```sh
 python main.py
+python gui.py
 python test_data_loading.py
 ```
 Follow the on-screen prompts:
@@ -103,7 +104,10 @@ test_fetch_jobs()
 
 Verifies that job listings can be retrieved from the database.
 
-added a requirements.txt
+-added a requirements.txt
+-removed generating features of program for sprint
+-New GUI Interface 
+
 
 ## **Author**
 
