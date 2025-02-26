@@ -1,7 +1,7 @@
 Sprint1:
 ## **Jordan DeAndrade - COMP490 Capstone - Project 1**
 
-##sprint3
+## **sprint3**
 -Implemented User features
 *save templates for future application use 
 *implemented testing 
@@ -100,39 +100,6 @@ Able to read rapidResults.json
 implimented test cases in test_data_loading.py to test json loading and db table creation
 all scripts were linted with flake8
 
-## Sprint3:
--Implemented User features
-*save templates for future application use 
-*implemented testing 
-
--testing:
-test_database_operations()
-
-Ensures job listings table creation and data insertion work correctly.
-
-test_load_json_data()
-
-Verifies that job listings are correctly loaded from a JSON file.
-
-test_fetch_job_details()
-
-Tests that a job's full details can be retrieved using its ID.
-
-test_save_user_details()
-
-Checks if user details are correctly saved in the database.
-
-test_fetch_users()
-
-Ensures that saved user details can be fetched successfully.
-
-test_fetch_jobs()
-
-Verifies that job listings can be retrieved from the database.
-
--added a requirements.txt
--removed generating features of program for sprint
--New GUI Interface 
 
 
 ## **Author**
