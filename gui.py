@@ -221,3 +221,5 @@ def main():
 if __name__ == "__main__":
     create_user_table()
     main()
+
+#some functions provided through google Ai
