@@ -2,7 +2,7 @@
 
 import sqlite3
 import PySimpleGUI as Sg
-from main import create_user_table
+from main import create_user_table, generate_resume
 
 
 def fetch_jobs():
@@ -157,6 +157,8 @@ def main():
                   size=(30, 1), font=("Comic Sans MS", 12), background_color="#333333",
                   text_color="white")],
         [Sg.Button('Clear', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
+        [Sg.Button('Generate Resume', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
+
     ]
 
     window = Sg.Window('Job Listings and Resume Builder', layout,
@@ -214,6 +216,31 @@ def main():
             window['-PROJECTS-'].update('')
             window['-CLASSES-'].update('')
             window['-OTHER-'].update('')
+
+        if event == 'Generate Resume':
+            selected_job_index = values.get('-JOB_TABLE-', [])
+            if not selected_job_index:
+                Sg.popup_error("Please select a job before generating a resume.")
+                continue
+
+            job_index = selected_job_index[0]
+            job = job_listings[job_index]
+
+
+            job_dict = tuple_to_dict(job)
+            user_details = {
+                "name": values.get('-NAME-', ''),
+                "email": values.get('-EMAIL-', ''),
+                "phone": values.get('-PHONE-', ''),
+                "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
+                "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
+                "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
+                "other": values.get('-OTHER-', ''),
+            }
+
+
+            resume_content = generate_resume(job_dict, user_details)
+            Sg.popup('Generated Resume', resume_content, font=("Comic Sans MS", 12))
 
     window.close()
 
