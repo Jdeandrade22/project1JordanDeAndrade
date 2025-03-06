@@ -1,8 +1,29 @@
-"""This script provides a GUI for job listings and resume building using SQLite."""
-
+import os
 import sqlite3
 import PySimpleGUI as Sg
 from main import create_user_table, generate_resume
+import pdfkit
+import markdown
+
+WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'  # Update this path if necessary
+pdfkit_config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
+
+
+def save_as_pdf(resume_content, output_path):
+    """Converts resume content (Markdown format) to PDF and saves it."""
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    output_file = os.path.join(output_path, 'resume.pdf')
+
+    try:
+        # Convert the markdown content to HTML first
+        html_content = markdown.markdown(resume_content)
+        # Use pdfkit to convert the HTML content to PDF
+        pdfkit.from_string(html_content, output_file, configuration=pdfkit_config)
+        return output_file
+    except Exception as e:
+        return f"An error occurred while saving the PDF: {str(e)}"
 
 
 def fetch_jobs():
@@ -122,7 +143,8 @@ def main():
                  text_color="white", background_color="#1A1A1A")],
         [Sg.Multiline('', size=(70, 15), key='-JOB_DETAILS-', disabled=True,
                       background_color="#333333", text_color="white", font=("Comic Sans MS", 12))],
-
+        [Sg.Button('Generate Resume', size=(20, 1), font=("Comic Sans MS", 12, "bold")),
+         Sg.Button('Save as PDF', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
         [Sg.Text('Enter Your Information', font=("Comic Sans MS", 14, "bold"),
                  text_color="#FFFF00", background_color="#1A1A1A")],
         [Sg.Text('Name', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
@@ -148,7 +170,6 @@ def main():
         [Sg.Text('Other Information', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
          Sg.InputText(key='-OTHER-', font=("Comic Sans MS", 12),
                       background_color="#333333", text_color="white")],
-
         [Sg.Button('Save Information', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
         [Sg.Button('Exit', size=(20, 1), font=("Comic Sans MS", 12, "bold"),
                    button_color=("white", "red"))],
@@ -157,8 +178,6 @@ def main():
                   size=(30, 1), font=("Comic Sans MS", 12), background_color="#333333",
                   text_color="white")],
         [Sg.Button('Clear', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
-        [Sg.Button('Generate Resume', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
-
     ]
 
     window = Sg.Window('Job Listings and Resume Builder', layout,
@@ -217,15 +236,14 @@ def main():
             window['-CLASSES-'].update('')
             window['-OTHER-'].update('')
 
-        if event == 'Generate Resume':
+        if event == 'Save as PDF':
             selected_job_index = values.get('-JOB_TABLE-', [])
             if not selected_job_index:
-                Sg.popup_error("Please select a job before generating a resume.")
+                Sg.popup_error("Please select a job before saving the resume as PDF.")
                 continue
 
             job_index = selected_job_index[0]
             job = job_listings[job_index]
-
 
             job_dict = tuple_to_dict(job)
             user_details = {
@@ -238,6 +256,42 @@ def main():
                 "other": values.get('-OTHER-', ''),
             }
 
+            # Generate the resume content in markdown format
+            resume_content = generate_resume(job_dict, user_details)
+
+            # Debug print to verify the content
+            print("Generated Resume Content:", resume_content)
+
+            # Set the output directory for PDF
+            output_dir = os.path.expanduser("~/Downloads")  # or any other directory of your choice
+
+            # Save the resume as a PDF
+            result = save_as_pdf(resume_content, output_dir)
+
+            if result.startswith("An error"):
+                Sg.popup_error(result, font=("Comic Sans MS", 12))
+            else:
+                Sg.popup(f"Resume saved as PDF successfully: {result}", font=("Comic Sans MS", 12))
+
+        if event == 'Generate Resume':
+            selected_job_index = values.get('-JOB_TABLE-', [])
+            if not selected_job_index:
+                Sg.popup_error("Please select a job before generating a resume.")
+                continue
+
+            job_index = selected_job_index[0]
+            job = job_listings[job_index]
+
+            job_dict = tuple_to_dict(job)
+            user_details = {
+                "name": values.get('-NAME-', ''),
+                "email": values.get('-EMAIL-', ''),
+                "phone": values.get('-PHONE-', ''),
+                "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
+                "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
+                "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
+                "other": values.get('-OTHER-', ''),
+            }
 
             resume_content = generate_resume(job_dict, user_details)
             Sg.popup('Generated Resume', resume_content, font=("Comic Sans MS", 12))
@@ -248,5 +302,3 @@ def main():
 if __name__ == "__main__":
     create_user_table()
     main()
-
-#some functions provided through google Ai
