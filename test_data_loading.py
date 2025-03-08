@@ -5,6 +5,12 @@ import unittest
 import PySimpleGUI as sg
 from main import load_json_data
 
+# Check if the environment is headless
+def is_headless():
+    """Check if the environment is headless (no display available)."""
+    return os.getenv("DISPLAY") is None or os.getenv("PYTHONUNBUFFERED") is not None
+
+
 """This module handles job data loading, insertion into a SQLite database,
 and testing the database operations."""
 
@@ -116,33 +122,13 @@ def fetch_jobs(conn):
     cursor.execute("SELECT id, title, company, location FROM job_listings")
     return cursor.fetchall()
 
+
 def fetch_job_details(conn, job_id):
     """Fetch full job details from the database using the job ID."""
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM job_listings WHERE id = ?", (job_id,))
     return cursor.fetchone()
 
-
-class TestApp(unittest.TestCase):
-
-    def test_fetch_job_details(self):
-        """Test fetching full job details based on job ID."""
-        self.cursor.execute(
-            """
-            INSERT INTO job_listings (title, company, location, description)
-            VALUES ('Software Engineer', 'Tech Corp', 'Remote', 'Full job description here')
-            """
-        )
-        self.conn.commit()
-
-        job_id = self.cursor.lastrowid  # Get last inserted job's ID
-        job_details = fetch_job_details(self.conn, job_id)
-
-        self.assertIsNotNone(job_details)
-        self.assertEqual(job_details[1], 'Software Engineer')  # Check title
-        self.assertEqual(job_details[2], 'Tech Corp')  # Check company
-        self.assertEqual(job_details[3], 'Remote')  # Check location
-        self.assertEqual(job_details[4], 'Full job description here')  # Check description
 
 def fetch_users(conn):
     """Fetch user details from the database."""
@@ -173,42 +159,57 @@ def save_user_details(conn, user_details):
 
 
 def create_gui():
-    """Placeholder for the GUI function."""
-    return None
+    """Create and return the PySimpleGUI window."""
+    layout = [
+        [sg.Text("Name:"), sg.Input(key="-NAME-")],
+        [sg.Text("Email:"), sg.Input(key="-EMAIL-")],
+        [sg.Text("Phone:"), sg.Input(key="-PHONE-")],
+        [sg.Text("GitHub/LinkedIn:"), sg.Input(key="-GITHUB_LINKEDIN-")],
+        [sg.Text("Projects (comma-separated):"), sg.Input(key="-PROJECTS-")],
+        [sg.Text("Classes (comma-separated):"), sg.Input(key="-CLASSES-")],
+        [sg.Text("Other:"), sg.Input(key="-OTHER-")],
+        [sg.Button("Save Information"), sg.Button("Exit")],
+    ]
+    return sg.Window("User Details", layout)
 
 
 def main():
-    """Main function to run the GUI."""
-    conn = sqlite3.connect("savedJobs.db")
-    window = create_gui()
+    """Main function to run the GUI or tests."""
+    if is_headless():
+        print("Running in headless mode. Skipping GUI.")
+        unittest.main()
+    else:
+        print("Running in GUI mode.")
+        conn = sqlite3.connect("savedJobs.db")
+        window = create_gui()
 
-    while True:
-        event, values = window.read()
+        while True:
+            event, values = window.read()
 
-        if event in (sg.WINDOW_CLOSED, "Exit"):
-            if sg.popup_yes_no(
-                "Are you sure you want to exit?", font=("Comic Sans MS", 12)
-            ) == "Yes":
-                break
+            if event in (sg.WINDOW_CLOSED, "Exit"):
+                if sg.popup_yes_no(
+                    "Are you sure you want to exit?", font=("Comic Sans MS", 12)
+                ) == "Yes":
+                    break
 
-        if event == "Save Information":
-            user_details = {
-                "name": values.get("-NAME-", ""),
-                "email": values.get("-EMAIL-", ""),
-                "phone": values.get("-PHONE-", ""),
-                "github_linkedin": values.get("-GITHUB_LINKEDIN-", ""),
-                "projects": values.get("-PROJECTS-", "").split(",")
-                if values.get("-PROJECTS-", "")
-                else [],
-                "classes": values.get("-CLASSES-", "").split(",")
-                if values.get("-CLASSES-", "")
-                else [],
-                "other": values.get("-OTHER-", ""),
-            }
+            if event == "Save Information":
+                user_details = {
+                    "name": values.get("-NAME-", ""),
+                    "email": values.get("-EMAIL-", ""),
+                    "phone": values.get("-PHONE-", ""),
+                    "github_linkedin": values.get("-GITHUB_LINKEDIN-", ""),
+                    "projects": values.get("-PROJECTS-", "").split(",")
+                    if values.get("-PROJECTS-", "")
+                    else [],
+                    "classes": values.get("-CLASSES-", "").split(",")
+                    if values.get("-CLASSES-", "")
+                    else [],
+                    "other": values.get("-OTHER-", ""),
+                }
 
-            if user_details["name"] and user_details["email"] and user_details["phone"]:
-                save_user_details(conn, user_details)
-                sg.popup("User information saved successfully!", font=("Comic Sans MS", 12))
+                if user_details["name"] and user_details["email"] and user_details["phone"]:
+                    save_user_details(conn, user_details)
+                    sg.popup("User information saved successfully!", font=("Comic Sans MS", 12))
 
 
 class TestApp(unittest.TestCase):
@@ -298,8 +299,3 @@ class TestApp(unittest.TestCase):
 
 if __name__ == "__main__":
     main()
-
-#some functions provided through google Ai
-    unittest.main()
-
-#
