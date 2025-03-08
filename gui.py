@@ -1,7 +1,7 @@
 import os
 import sqlite3
 import PySimpleGUI as Sg
-from main import create_user_table, generate_resume
+from main import create_user_table, generate_resume, generate_cover_letter
 import pdfkit
 import markdown
 
@@ -17,9 +17,7 @@ def save_as_pdf(resume_content, output_path):
     output_file = os.path.join(output_path, 'resume.pdf')
 
     try:
-        # Convert the markdown content to HTML first
         html_content = markdown.markdown(resume_content)
-        # Use pdfkit to convert the HTML content to PDF
         pdfkit.from_string(html_content, output_file, configuration=pdfkit_config)
         return output_file
     except Exception as e:
@@ -144,7 +142,9 @@ def main():
         [Sg.Multiline('', size=(70, 15), key='-JOB_DETAILS-', disabled=True,
                       background_color="#333333", text_color="white", font=("Comic Sans MS", 12))],
         [Sg.Button('Generate Resume', size=(20, 1), font=("Comic Sans MS", 12, "bold")),
+         Sg.Button('Generate Cover Letter', size=(20, 1), font=("Comic Sans MS", 12, "bold")),
          Sg.Button('Save as PDF', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
+
         [Sg.Text('Enter Your Information', font=("Comic Sans MS", 14, "bold"),
                  text_color="#FFFF00", background_color="#1A1A1A")],
         [Sg.Text('Name', font=("Comic Sans MS", 12), background_color="#1A1A1A"),
@@ -236,6 +236,29 @@ def main():
             window['-CLASSES-'].update('')
             window['-OTHER-'].update('')
 
+        if event == 'Generate Cover Letter':
+            selected_job_index = values.get('-JOB_TABLE-', [])
+            if not selected_job_index:
+                Sg.popup_error("Please select a job before generating a cover letter.")
+                continue
+
+            job_index = selected_job_index[0]
+            job = job_listings[job_index]
+
+            job_dict = tuple_to_dict(job)
+            user_details = {
+                "name": values.get('-NAME-', ''),
+                "email": values.get('-EMAIL-', ''),
+                "phone": values.get('-PHONE-', ''),
+                "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
+                "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
+                "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
+                "other": values.get('-OTHER-', ''),
+            }
+
+            cover_letter_content = generate_cover_letter(job_dict, user_details)
+            Sg.popup('Generated Cover Letter', cover_letter_content, font=("Comic Sans MS", 12))
+
         if event == 'Save as PDF':
             selected_job_index = values.get('-JOB_TABLE-', [])
             if not selected_job_index:
@@ -256,16 +279,11 @@ def main():
                 "other": values.get('-OTHER-', ''),
             }
 
-            # Generate the resume content in markdown format
             resume_content = generate_resume(job_dict, user_details)
-
-            # Debug print to verify the content
             print("Generated Resume Content:", resume_content)
 
-            # Set the output directory for PDF
             output_dir = os.path.expanduser("~/Downloads")  # or any other directory of your choice
 
-            # Save the resume as a PDF
             result = save_as_pdf(resume_content, output_dir)
 
             if result.startswith("An error"):

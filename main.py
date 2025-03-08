@@ -174,7 +174,51 @@ def generate_resume(job, user_details):
 
     return response.text
 
+def generate_cover_letter(job, user_details):
+    """Generates a tailored cover letter based on the job posting and user details."""
+    job = reformat_job_data(job)
+    job_description = job.get("description", "No description available")
+    job_title = job.get("title", "Unknown Job Title")
+    company_name = job.get("company", "Unknown Company")
 
+    # Build personal details section dynamically
+    personal_details = (
+        f"My name is {user_details.get('name', 'N/A')}, and I am a student at "
+        f"{user_details.get('university', 'an unspecified university')}.\n"
+        f"I have experience in {user_details.get('experience', 'relevant fields')}.\n"
+        f"I have worked on projects including:\n"
+        f"{chr(10).join(user_details.get('projects', ['No projects listed']))}\n"
+        f"I have taken courses such as:\n"
+        f"{chr(10).join(user_details.get('classes', ['No classes listed']))}\n"
+        f"My GitHub or LinkedIn profile can be found here: "
+        f"{user_details.get('github_linkedin', 'N/A')}.\n"
+        f"Additional information:\n{user_details.get('other', 'No additional information provided.')}"
+    )
+
+    # Improved AI prompt for cover letter
+    prompt = (
+        "You are an expert cover letter writer. Generate a cover letter in **Markdown format** "
+        "that highlights my skills, experience, and projects while aligning with "
+        "the given job.\n\n"
+        "**Job Details:**\n"
+        f"- **Job Title:** {job_title}\n"
+        f"- **Company:** {company_name}\n"
+        f"- **Description:** {job_description}\n\n"
+        "**Personal Information:**\n"
+        f"{personal_details}\n\n"
+        "### Instructions:\n"
+        "- Format the cover letter professionally using Markdown.\n"
+        "- Tailor the cover letter to match the job description.\n"
+        "- Highlight relevant skills, coursework, and projects.\n"
+        "- Keep it concise but impactful.\n\n"
+        "Please generate the cover letter now."
+    )
+
+    # Call AI model to generate response
+    gen_model = genai.GenerativeModel("gemini-1.5-flash")
+    response = gen_model.generate_content(prompt)
+
+    return response.text
 def create_database():
     """Creates the database with a unique constraint to prevent duplicates."""
     conn = sqlite3.connect("savedJobs.db")
