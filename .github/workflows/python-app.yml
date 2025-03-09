@@ -21,12 +21,15 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb  # Install X virtual framebuffer
+          sudo apt-get install -y xvfb  # Install X virtual framebuffer for GUI tests
+
+      - name: Install Python dependencies
+        run: |
           python -m pip install --upgrade pip
-          # pip install flake8 pytest PySimpleGUI
+          pip install flake8 pytest PySimpleGUI sqlite3
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Lint with flake8
@@ -34,6 +37,13 @@ jobs:
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Test with pytest (Headless Mode)
+      - name: Run unit tests (Headless Mode)
         run: |
-          xvfb-run pytest --tb=short  # Run tests inside virtual display
+          # Set environment variable to force headless mode
+          export PYTHONUNBUFFERED=1
+          python -m unittest discover
+
+      - name: Run GUI tests (with Xvfb)
+        run: |
+          # Use xvfb-run to simulate a display for GUI tests
+          xvfb-run python -m unittest discover
