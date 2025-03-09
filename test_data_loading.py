@@ -2,7 +2,8 @@ import os
 import sqlite3
 import json
 import unittest
-import PySimpleGUI as sg
+import tempfile
+import PySimpleGUI as Sg
 from main import load_json_data
 
 # Check if the environment is headless
@@ -11,47 +12,37 @@ def is_headless():
     return os.getenv("DISPLAY") is None or os.getenv("PYTHONUNBUFFERED") is not None
 
 
-"""This module handles job data loading, insertion into a SQLite database,
-and testing the database operations."""
-
-
 def insert_job_data(job_listings, db_file="test_jobs.db"):
     """Insert job listings into the database."""
-    conn = sqlite3.connect(db_file)
-    cursor = conn.cursor()
-
-    for job in job_listings:
-        cursor.execute(
-            """
-            INSERT INTO job_listings (title, company, location)
-            VALUES (?, ?, ?)
-            """,
-            (job["title"], job["company"], job["location"]),
-        )
-
-    conn.commit()
-    conn.close()
+    with sqlite3.connect(db_file) as conn:
+        cursor = conn.cursor()
+        for job in job_listings:
+            cursor.execute(
+                """
+                INSERT INTO job_listings (title, company, location)
+                VALUES (?, ?, ?)
+                """,
+                (job["title"], job["company"], job["location"]),
+            )
+        conn.commit()
 
 
 def create_database():
     """Create the job_listings table in the database if it does not exist."""
     db_file = "test_jobs.db"
-    conn = sqlite3.connect(db_file)
-    cursor = conn.cursor()
-
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS job_listings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            company TEXT,
-            location TEXT
+    with sqlite3.connect(db_file) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS job_listings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                company TEXT,
+                location TEXT
+            )
+            """
         )
-        """
-    )
-
-    conn.commit()
-    conn.close()
+        conn.commit()
 
 
 def test_database_operations():
@@ -71,22 +62,21 @@ def test_database_operations():
 
     insert_job_data([test_job])
 
-    conn = sqlite3.connect(db_file)
-    cursor = conn.cursor()
+    with sqlite3.connect(db_file) as conn:
+        cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='job_listings'"
-    )
-    table_exists = cursor.fetchone()
-    assert table_exists, "Table 'job_listings' does not exist!"
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='job_listings'"
+        )
+        table_exists = cursor.fetchone()
+        assert table_exists, "Table 'job_listings' does not exist!"
 
-    cursor.execute("SELECT * FROM job_listings")
-    all_rows = cursor.fetchall()
-    print("Contents of job_listings table:", all_rows)
+        cursor.execute("SELECT * FROM job_listings")
+        all_rows = cursor.fetchall()
+        print("Contents of job_listings table:", all_rows)
 
-    cursor.execute("SELECT title, company, location FROM job_listings")
-    result = cursor.fetchone()
-    conn.close()
+        cursor.execute("SELECT title, company, location FROM job_listings")
+        result = cursor.fetchone()
 
     assert result is not None, "No job was inserted!"
     assert result[0] == "Backend Developer"
@@ -101,19 +91,19 @@ def test_load_json_data():
         {"title": "Software Engineer", "company": "Tech Corp", "location": "Remote"},
         {"title": "Data Scientist", "company": "Data Inc", "location": "New York"},
     ]
-    test_file = "test_jobs.json"
 
-    with open(test_file, "w", encoding="ascii") as file:
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
         for job in test_data:
-            file.write(json.dumps(job) + "\n")
+            temp_file.write(json.dumps(job) + "\n")
+        temp_file_path = temp_file.name
 
-    loaded_data = load_json_data(test_file)
+    loaded_data = load_json_data(temp_file_path)
 
     assert len(loaded_data) == len(test_data), "Loaded data count mismatch."
     assert loaded_data[0]["title"] == "Software Engineer", "Title mismatch."
     assert loaded_data[1]["company"] == "Data Inc", "Company mismatch."
 
-    os.remove(test_file)
+    os.remove(temp_file_path)
 
 
 def fetch_jobs(conn):
@@ -161,16 +151,16 @@ def save_user_details(conn, user_details):
 def create_gui():
     """Create and return the PySimpleGUI window."""
     layout = [
-        [sg.Text("Name:"), sg.Input(key="-NAME-")],
-        [sg.Text("Email:"), sg.Input(key="-EMAIL-")],
-        [sg.Text("Phone:"), sg.Input(key="-PHONE-")],
-        [sg.Text("GitHub/LinkedIn:"), sg.Input(key="-GITHUB_LINKEDIN-")],
-        [sg.Text("Projects (comma-separated):"), sg.Input(key="-PROJECTS-")],
-        [sg.Text("Classes (comma-separated):"), sg.Input(key="-CLASSES-")],
-        [sg.Text("Other:"), sg.Input(key="-OTHER-")],
-        [sg.Button("Save Information"), sg.Button("Exit")],
+        [Sg.Text("Name:"), Sg.Input(key="-NAME-")],
+        [Sg.Text("Email:"), Sg.Input(key="-EMAIL-")],
+        [Sg.Text("Phone:"), Sg.Input(key="-PHONE-")],
+        [Sg.Text("GitHub/LinkedIn:"), Sg.Input(key="-GITHUB_LINKEDIN-")],
+        [Sg.Text("Projects (comma-separated):"), Sg.Input(key="-PROJECTS-")],
+        [Sg.Text("Classes (comma-separated):"), Sg.Input(key="-CLASSES-")],
+        [Sg.Text("Other:"), Sg.Input(key="-OTHER-")],
+        [Sg.Button("Save Information"), Sg.Button("Exit")],
     ]
-    return sg.Window("User Details", layout)
+    return Sg.Window("User Details", layout)
 
 
 def main():
@@ -186,8 +176,8 @@ def main():
         while True:
             event, values = window.read()
 
-            if event in (sg.WINDOW_CLOSED, "Exit"):
-                if sg.popup_yes_no(
+            if event in (Sg.WINDOW_CLOSED, "Exit"):
+                if Sg.popup_yes_no(
                     "Are you sure you want to exit?", font=("Comic Sans MS", 12)
                 ) == "Yes":
                     break
@@ -209,7 +199,7 @@ def main():
 
                 if user_details["name"] and user_details["email"] and user_details["phone"]:
                     save_user_details(conn, user_details)
-                    sg.popup("User information saved successfully!", font=("Comic Sans MS", 12))
+                    Sg.popup("User information saved successfully!", font=("Comic Sans MS", 12))
 
 
 class TestApp(unittest.TestCase):
@@ -296,6 +286,67 @@ class TestApp(unittest.TestCase):
         jobs = fetch_jobs(self.conn)
         self.assertGreater(len(jobs), 0)
 
+    def test_fetch_job_details(self):
+        """Test fetching full job details from the database."""
+        self.cursor.execute(
+            """
+            INSERT INTO job_listings (title, company, location, description)
+            VALUES ('Frontend Developer', 'Web Corp', 'New York', 'Job details here')
+            """
+        )
+        self.conn.commit()
+        self.cursor.execute("SELECT id FROM job_listings WHERE title='Frontend Developer'")
+        job_id = self.cursor.fetchone()[0]
+        job_details = fetch_job_details(self.conn, job_id)
+        self.assertIsNotNone(job_details)
+
+    def test_create_prompt_with_job_and_user_info(self):
+        """Test creating a prompt with job and user information."""
+        job = {
+            "title": "Software Engineer",
+            "company": "Tech Corp",
+            "location": "Remote",
+            "description": "Develop and maintain software applications."
+        }
+
+        user = {
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "phone": "1234567890",
+            "github_linkedin": "https://github.com/johndoe",
+            "projects": ["Project1", "Project2"],
+            "classes": ["CS101", "CS102"],
+            "other": "Additional info"
+        }
+
+        expected_prompt = (
+            "Job Title: Software Engineer\n"
+            "Company: Tech Corp\n"
+            "Location: Remote\n"
+            "Description: Develop and maintain software applications.\n\n"
+            "User Name: John Doe\n"
+            "Email: john.doe@example.com\n"
+            "Phone: 1234567890\n"
+        )
+
+        generated_prompt = create_prompt_with_job_and_user_info(job, user)
+        self.assertEqual(generated_prompt, expected_prompt)
+
+
+def create_prompt_with_job_and_user_info(job, user):
+    """Create a prompt combining job and user information."""
+    prompt = (
+        f"Job Title: {job['title']}\n"
+        f"Company: {job['company']}\n"
+        f"Location: {job['location']}\n"
+        f"Description: {job['description']}\n\n"
+        f"User Name: {user['name']}\n"
+        f"Email: {user['email']}\n"
+        f"Phone: {user['phone']}\n"
+    )
+    return prompt
+
+#some functions provided through google Ai
 
 if __name__ == "__main__":
     main()
