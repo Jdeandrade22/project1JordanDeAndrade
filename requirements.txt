@@ -1,5 +1,2 @@
--PySimpleGui
--SQLite3
--google.generativeai
--unitTest
--Api Key
+PySimpleGUI==5.0.99.100
+google-generativeai==0.3.2
