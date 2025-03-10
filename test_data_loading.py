@@ -360,6 +360,7 @@ def generate_llm_response(prompt):
     response = model.generate_content(prompt)
     return response.text
 
+
 class TestLLMResponse(unittest.TestCase):
     def test_generate_llm_response(self):
         """Test the generate_llm_response function."""

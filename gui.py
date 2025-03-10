@@ -7,8 +7,6 @@ import markdown
 from api_secrets import api_key
 import google.generativeai as genai
 
-
-
 # Update this path if necessary
 WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'
 pdfkit_config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
