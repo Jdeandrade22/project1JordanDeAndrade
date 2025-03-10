@@ -4,7 +4,12 @@ import json
 import sys
 import sqlite3
 import google.generativeai as genai
-from api_secrets import api_key
+import os
+# from project1JordanDeAndrade.api_secrets import api_key
+api_key = os.getenv("API_KEY")
+
+if not api_key:
+    raise ValueError("API_KEY environment variable is not set!")
 
 # Configure the API
 genai.configure(api_key=api_key)
