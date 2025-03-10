@@ -378,6 +378,7 @@ class TestLLMResponse(unittest.TestCase):
             # Check the response
             self.assertEqual(response, "Mocked response", "LLM API did not return a valid response.")
 
+
 # Some functions provided through Google AI
 if __name__ == "__main__":
     main()
