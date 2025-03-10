@@ -308,6 +308,7 @@ def set_gui_themes():
     Sg.theme_element_text_color("white")
     Sg.theme_button_color(("white", "#5A5AFF"))
 
+
 def initialize_window():
     """Initialize the window and return it."""
     job_listings = fetch_jobs()
@@ -321,11 +322,13 @@ def initialize_window():
 
     return window, job_listings
 
+
 def handle_exit(window):
     """Handle the exit event."""
     if Sg.popup_yes_no("Are you sure you want to exit?",
                        font=("Comic Sans MS", 12)) == "Yes":
         window.close()
+
 
 def handle_clear_fields(window):
     """Clear the user input fields."""
@@ -336,6 +339,7 @@ def handle_clear_fields(window):
     window['-PROJECTS-'].update('')
     window['-CLASSES-'].update('')
     window['-OTHER-'].update('')
+
 
 def main():
     """Main function to run the GUI."""
