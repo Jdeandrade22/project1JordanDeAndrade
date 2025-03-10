@@ -4,6 +4,9 @@ import PySimpleGUI as Sg
 from main import create_user_table, generate_resume, generate_cover_letter
 import pdfkit
 import markdown
+from api_secrets import api_key
+import google.generativeai as genai
+
 
 
 # Update this path if necessary
@@ -343,6 +346,9 @@ def handle_clear_fields(window):
 
 def main():
     """Main function to run the GUI."""
+    # Configure the API key
+    genai.configure(api_key=api_key)
+
     set_gui_themes()
     window, job_listings = initialize_window()
 

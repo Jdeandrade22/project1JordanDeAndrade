@@ -5,14 +5,14 @@ import sys
 import sqlite3
 import google.generativeai as genai
 import os
-# from project1JordanDeAndrade.api_secrets import api_key
+
 api_key = os.getenv("API_KEY")
 
 if not api_key:
-    raise ValueError("API_KEY environment variable is not set!")
-
-# Configure the API
-genai.configure(api_key=api_key)
+    print("Warning: API_KEY environment variable is not set. Some functionality may be limited.")
+else:
+    # Configure the API
+    genai.configure(api_key=api_key)
 
 # Helps configure JSON files to proper format
 sys.stdout.reconfigure(encoding="utf-8")
@@ -308,5 +308,6 @@ def main():
     insert_job_data(reformatted_jobs)
 
 
+# Some functions provided through Google AI
 if __name__ == "__main__":
     main()

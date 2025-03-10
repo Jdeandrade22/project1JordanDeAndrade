@@ -5,6 +5,8 @@ import unittest
 import tempfile
 import PySimpleGUI as Sg
 from main import load_json_data
+from unittest.mock import patch
+import google.generativeai as genai
 
 
 def is_headless():
@@ -346,6 +348,34 @@ def create_prompt_with_job_and_user_info(job, user):
     )
     return prompt
 
+
+def generate_llm_response(prompt):
+    """Generate a response from the Google Generative AI API."""
+    api_key = os.getenv("API_KEY")
+    if not api_key:
+        raise ValueError("API_KEY environment variable is not set.")
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-pro')
+    response = model.generate_content(prompt)
+    return response.text
+
+class TestLLMResponse(unittest.TestCase):
+    def test_generate_llm_response(self):
+        """Test the generate_llm_response function."""
+        # Set the API key in the environment
+        os.environ["API_KEY"] = "test_api_key"
+
+        # Mock the API response
+        with patch("google.generativeai.GenerativeModel") as mock_model:
+            mock_instance = mock_model.return_value
+            mock_instance.generate_content.return_value.text = "Mocked response"
+
+            # Call the function
+            response = generate_llm_response("Test prompt")
+
+            # Check the response
+            self.assertEqual(response, "Mocked response", "LLM API did not return a valid response.")
 
 # Some functions provided through Google AI
 if __name__ == "__main__":
