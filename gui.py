@@ -300,14 +300,16 @@ def create_gui_layout(job_listings):
     return layout
 
 
-def main():
-    """Main function to run the GUI."""
+def set_gui_themes():
+    """Set the theme for the GUI."""
     Sg.theme_background_color("#1A1A1A")
     Sg.theme_text_color("white")
     Sg.theme_element_background_color("#333333")
     Sg.theme_element_text_color("white")
     Sg.theme_button_color(("white", "#5A5AFF"))
 
+def initialize_window():
+    """Initialize the window and return it."""
     job_listings = fetch_jobs()
     layout = create_gui_layout(job_listings)
     window = Sg.Window('Job Listings and Resume Builder', layout,
@@ -317,13 +319,35 @@ def main():
     user_dropdown_values = [f"{user[0]} - {user[1]}" for user in saved_users]
     window['-USER_SELECT-'].update(values=user_dropdown_values)
 
+    return window, job_listings
+
+def handle_exit(window):
+    """Handle the exit event."""
+    if Sg.popup_yes_no("Are you sure you want to exit?",
+                       font=("Comic Sans MS", 12)) == "Yes":
+        window.close()
+
+def handle_clear_fields(window):
+    """Clear the user input fields."""
+    window['-NAME-'].update('')
+    window['-EMAIL-'].update('')
+    window['-PHONE-'].update('')
+    window['-GITHUB_LINKEDIN-'].update('')
+    window['-PROJECTS-'].update('')
+    window['-CLASSES-'].update('')
+    window['-OTHER-'].update('')
+
+def main():
+    """Main function to run the GUI."""
+    set_gui_themes()
+    window, job_listings = initialize_window()
+
     while True:
         event, values = window.read()
 
         if event in (Sg.WINDOW_CLOSED, 'Exit'):
-            if Sg.popup_yes_no("Are you sure you want to exit?",
-                               font=("Comic Sans MS", 12)) == "Yes":
-                break
+            handle_exit(window)
+            break
 
         if event == 'Save Information':
             handle_save_information(values, window)
@@ -335,13 +359,7 @@ def main():
             handle_user_selection(values, window)
 
         if event == 'Clear':
-            window['-NAME-'].update('')
-            window['-EMAIL-'].update('')
-            window['-PHONE-'].update('')
-            window['-GITHUB_LINKEDIN-'].update('')
-            window['-PROJECTS-'].update('')
-            window['-CLASSES-'].update('')
-            window['-OTHER-'].update('')
+            handle_clear_fields(window)
 
         if event == 'Generate Cover Letter':
             handle_generate_cover_letter(values, job_listings)
@@ -355,6 +373,7 @@ def main():
     window.close()
 
 
+# Some functions provided through Google AI
 if __name__ == "__main__":
     create_user_table()
     main()
