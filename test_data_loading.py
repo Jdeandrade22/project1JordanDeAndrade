@@ -6,7 +6,7 @@ import tempfile
 import PySimpleGUI as Sg
 from main import load_json_data
 
-# Check if the environment is headless
+
 def is_headless():
     """Check if the environment is headless (no display available)."""
     return os.getenv("DISPLAY") is None or os.getenv("PYTHONUNBUFFERED") is not None
@@ -346,7 +346,7 @@ def create_prompt_with_job_and_user_info(job, user):
     )
     return prompt
 
-#some functions provided through Google Ai
 
+# Some functions provided through Google AI
 if __name__ == "__main__":
     main()
