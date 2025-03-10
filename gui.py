@@ -5,12 +5,14 @@ from main import create_user_table, generate_resume, generate_cover_letter
 import pdfkit
 import markdown
 
-WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'  # Update this path if necessary
+
+# Update this path if necessary
+WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'
 pdfkit_config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
 
 
 def save_as_pdf(resume_content, output_path):
-    """Converts resume content (Markdown format) to PDF and saves it."""
+    """Convert resume content (Markdown format) to PDF and save it."""
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
@@ -25,7 +27,7 @@ def save_as_pdf(resume_content, output_path):
 
 
 def fetch_jobs():
-    """Fetches job listings from the database."""
+    """Fetch job listings from the database."""
     conn = sqlite3.connect('savedJobs.db')
     cursor = conn.cursor()
     cursor.execute("SELECT id, title, company, location, description FROM job_listings")
@@ -35,7 +37,7 @@ def fetch_jobs():
 
 
 def fetch_users():
-    """Fetches saved usernames from the database."""
+    """Fetch saved usernames from the database."""
     conn = sqlite3.connect('savedJobs.db')
     cursor = conn.cursor()
     cursor.execute("SELECT id, name FROM user_details")
@@ -45,7 +47,7 @@ def fetch_users():
 
 
 def save_user_details(user_details):
-    """Saves user details into the database."""
+    """Save user details into the database."""
     conn = sqlite3.connect('savedJobs.db')
     cursor = conn.cursor()
     cursor.execute('''
@@ -65,7 +67,7 @@ def save_user_details(user_details):
 
 
 def load_job_details(job_id, window):
-    """Loads job details into the job description box."""
+    """Load job details into the job description box."""
     conn = sqlite3.connect('savedJobs.db')
     cursor = conn.cursor()
     cursor.execute("SELECT description FROM job_listings WHERE id=?", (job_id,))
@@ -79,13 +81,13 @@ def load_job_details(job_id, window):
 
 
 def tuple_to_dict(job_tuple):
-    """Converts a job tuple to a dictionary."""
+    """Convert a job tuple to a dictionary."""
     keys = ["id", "title", "company", "location", "description"]
     return dict(zip(keys, job_tuple))
 
 
 def load_user_details(user_id, window):
-    """Loads saved user details into the input fields."""
+    """Load saved user details into the input fields."""
     conn = sqlite3.connect('savedJobs.db')
     cursor = conn.cursor()
     cursor.execute(
@@ -108,7 +110,7 @@ def load_user_details(user_id, window):
 
 
 def handle_save_information(values, window):
-    """Handles saving user information."""
+    """Handle saving user information."""
     user_details = {
         "name": values.get('-NAME-', ''),
         "email": values.get('-EMAIL-', ''),
@@ -132,7 +134,7 @@ def handle_save_information(values, window):
 
 
 def handle_job_selection(values, window, job_listings):
-    """Handles job selection from the table."""
+    """Handle job selection from the table."""
     if values['-JOB_TABLE-']:
         selected_row_index = values['-JOB_TABLE-'][0]
         selected_job = job_listings[selected_row_index]
@@ -140,7 +142,7 @@ def handle_job_selection(values, window, job_listings):
 
 
 def handle_user_selection(values, window):
-    """Handles user selection from the dropdown."""
+    """Handle user selection from the dropdown."""
     if values['-USER_SELECT-']:
         selected_user_text = values['-USER_SELECT-']
         selected_user_id = selected_user_text.split(" - ")[0]
@@ -148,7 +150,7 @@ def handle_user_selection(values, window):
 
 
 def handle_generate_cover_letter(values, job_listings):
-    """Handles generating a cover letter."""
+    """Handle generating a cover letter."""
     selected_job_index = values.get('-JOB_TABLE-', [])
     if not selected_job_index:
         Sg.popup_error("Please select a job before generating a cover letter.")
@@ -173,7 +175,7 @@ def handle_generate_cover_letter(values, job_listings):
 
 
 def handle_save_as_pdf(values, job_listings):
-    """Handles saving the resume as a PDF."""
+    """Handle saving the resume as a PDF."""
     selected_job_index = values.get('-JOB_TABLE-', [])
     if not selected_job_index:
         Sg.popup_error("Please select a job before saving the resume as PDF.")
@@ -205,7 +207,7 @@ def handle_save_as_pdf(values, job_listings):
 
 
 def handle_generate_resume(values, job_listings):
-    """Handles generating a resume."""
+    """Handle generating a resume."""
     selected_job_index = values.get('-JOB_TABLE-', [])
     if not selected_job_index:
         Sg.popup_error("Please select a job before generating a resume.")
@@ -230,7 +232,7 @@ def handle_generate_resume(values, job_listings):
 
 
 def create_gui_layout(job_listings):
-    """Creates the layout for the GUI."""
+    """Create the layout for the GUI."""
     table_data = [[job[0], job[1], job[2], job[3], job[4]] for job in job_listings]
     headings = ['ID', 'Title', 'Company', 'Location', 'Description']
 
