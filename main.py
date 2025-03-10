@@ -188,21 +188,15 @@ def generate_cover_letter(job, user_details):
     personal_details = (
         f"My name is {user_details.get('name', 'N/A')}, and I am a student at "
         f"{user_details.get('university', 'an unspecified university')}.\n"
-        f"I have experience in {
-            user_details.get(
-                'experience',
-                'relevant fields')}.\n"
+        f"I have experience in {user_details.get('experience', 'relevant fields')}.\n"
         f"I have worked on projects including:\n"
-        f"{chr(10).join(user_details.get('projects',
-                                         ['No projects listed']))}\n"
+        f"{chr(10).join(user_details.get('projects', ['No projects listed']))}\n"
         f"I have taken courses such as:\n"
         f"{chr(10).join(user_details.get('classes', ['No classes listed']))}\n"
         f"My GitHub or LinkedIn profile can be found here: "
         f"{user_details.get('github_linkedin', 'N/A')}.\n"
-        f"Additional information:\n{
-            user_details.get(
-                'other',
-                'No additional information provided.')}"
+        f"Additional information:\n"
+        f"{user_details.get('other', 'No additional information provided.')}"
     )
 
     # Improved AI prompt for cover letter
