@@ -107,21 +107,136 @@ def load_user_details(user_id, window):
         Sg.popup_error("User not found!", font=("Comic Sans MS", 12))
 
 
-def main():
-    """Main function to run the GUI."""
-    Sg.theme_background_color("#1A1A1A")
-    Sg.theme_text_color("white")
-    Sg.theme_element_background_color("#333333")
-    Sg.theme_element_text_color("white")
-    Sg.theme_button_color(("white", "#5A5AFF"))
+def handle_save_information(values, window):
+    """Handles saving user information."""
+    user_details = {
+        "name": values.get('-NAME-', ''),
+        "email": values.get('-EMAIL-', ''),
+        "phone": values.get('-PHONE-', ''),
+        "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
+        "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
+        "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
+        "other": values.get('-OTHER-', ''),
+    }
 
-    job_listings = fetch_jobs()
+    if user_details["name"] and user_details["email"] and user_details["phone"]:
+        save_user_details(user_details)
+        Sg.popup("User information saved successfully!", font=("Comic Sans MS", 12))
+
+        updated_users = fetch_users()
+        user_dropdown_values = [f"{user[0]} - {user[1]}" for user in updated_users]
+        window['-USER_SELECT-'].update(values=user_dropdown_values)
+    else:
+        Sg.popup_error("Please fill out at least Name, Email, and Phone!",
+                       font=("Comic Sans MS", 12))
+
+
+def handle_job_selection(values, window, job_listings):
+    """Handles job selection from the table."""
+    if values['-JOB_TABLE-']:
+        selected_row_index = values['-JOB_TABLE-'][0]
+        selected_job = job_listings[selected_row_index]
+        load_job_details(selected_job[0], window)
+
+
+def handle_user_selection(values, window):
+    """Handles user selection from the dropdown."""
+    if values['-USER_SELECT-']:
+        selected_user_text = values['-USER_SELECT-']
+        selected_user_id = selected_user_text.split(" - ")[0]
+        load_user_details(selected_user_id, window)
+
+
+def handle_generate_cover_letter(values, job_listings):
+    """Handles generating a cover letter."""
+    selected_job_index = values.get('-JOB_TABLE-', [])
+    if not selected_job_index:
+        Sg.popup_error("Please select a job before generating a cover letter.")
+        return
+
+    job_index = selected_job_index[0]
+    job = job_listings[job_index]
+
+    job_dict = tuple_to_dict(job)
+    user_details = {
+        "name": values.get('-NAME-', ''),
+        "email": values.get('-EMAIL-', ''),
+        "phone": values.get('-PHONE-', ''),
+        "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
+        "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
+        "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
+        "other": values.get('-OTHER-', ''),
+    }
+
+    cover_letter_content = generate_cover_letter(job_dict, user_details)
+    Sg.popup('Generated Cover Letter', cover_letter_content, font=("Comic Sans MS", 12))
+
+
+def handle_save_as_pdf(values, job_listings):
+    """Handles saving the resume as a PDF."""
+    selected_job_index = values.get('-JOB_TABLE-', [])
+    if not selected_job_index:
+        Sg.popup_error("Please select a job before saving the resume as PDF.")
+        return
+
+    job_index = selected_job_index[0]
+    job = job_listings[job_index]
+
+    job_dict = tuple_to_dict(job)
+    user_details = {
+        "name": values.get('-NAME-', ''),
+        "email": values.get('-EMAIL-', ''),
+        "phone": values.get('-PHONE-', ''),
+        "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
+        "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
+        "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
+        "other": values.get('-OTHER-', ''),
+    }
+
+    resume_content = generate_resume(job_dict, user_details)
+    output_dir = os.path.expanduser("~/Downloads")  # or any other directory of your choice
+
+    result = save_as_pdf(resume_content, output_dir)
+
+    if result.startswith("An error"):
+        Sg.popup_error(result, font=("Comic Sans MS", 12))
+    else:
+        Sg.popup(f"Resume saved as PDF successfully: {result}", font=("Comic Sans MS", 12))
+
+
+def handle_generate_resume(values, job_listings):
+    """Handles generating a resume."""
+    selected_job_index = values.get('-JOB_TABLE-', [])
+    if not selected_job_index:
+        Sg.popup_error("Please select a job before generating a resume.")
+        return
+
+    job_index = selected_job_index[0]
+    job = job_listings[job_index]
+
+    job_dict = tuple_to_dict(job)
+    user_details = {
+        "name": values.get('-NAME-', ''),
+        "email": values.get('-EMAIL-', ''),
+        "phone": values.get('-PHONE-', ''),
+        "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
+        "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
+        "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
+        "other": values.get('-OTHER-', ''),
+    }
+
+    resume_content = generate_resume(job_dict, user_details)
+    Sg.popup('Generated Resume', resume_content, font=("Comic Sans MS", 12))
+
+
+def create_gui_layout(job_listings):
+    """Creates the layout for the GUI."""
     table_data = [[job[0], job[1], job[2], job[3], job[4]] for job in job_listings]
     headings = ['ID', 'Title', 'Company', 'Location', 'Description']
 
     layout = [
         [Sg.Text('Select a Job from the List', font=("Comic Sans MS", 14, "bold"),
-                 text_color="#FFFF00", background_color="#1A1A1A")],
+         text_color="#FFFF00", background_color="#1A1A1A")],
         [Sg.Table(
             values=table_data,
             headings=headings,
@@ -180,6 +295,19 @@ def main():
         [Sg.Button('Clear', size=(20, 1), font=("Comic Sans MS", 12, "bold"))],
     ]
 
+    return layout
+
+
+def main():
+    """Main function to run the GUI."""
+    Sg.theme_background_color("#1A1A1A")
+    Sg.theme_text_color("white")
+    Sg.theme_element_background_color("#333333")
+    Sg.theme_element_text_color("white")
+    Sg.theme_button_color(("white", "#5A5AFF"))
+
+    job_listings = fetch_jobs()
+    layout = create_gui_layout(job_listings)
     window = Sg.Window('Job Listings and Resume Builder', layout,
                        background_color="#1A1A1A", finalize=True)
 
@@ -196,36 +324,13 @@ def main():
                 break
 
         if event == 'Save Information':
-            user_details = {
-                "name": values.get('-NAME-', ''),
-                "email": values.get('-EMAIL-', ''),
-                "phone": values.get('-PHONE-', ''),
-                "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
-                "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
-                "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
-                "other": values.get('-OTHER-', ''),
-            }
+            handle_save_information(values, window)
 
-            if user_details["name"] and user_details["email"] and user_details["phone"]:
-                save_user_details(user_details)
-                Sg.popup("User information saved successfully!", font=("Comic Sans MS", 12))
+        if event == '-JOB_TABLE-':
+            handle_job_selection(values, window, job_listings)
 
-                updated_users = fetch_users()
-                user_dropdown_values = [f"{user[0]} - {user[1]}" for user in updated_users]
-                window['-USER_SELECT-'].update(values=user_dropdown_values)
-            else:
-                Sg.popup_error("Please fill out at least Name, Email, and Phone!",
-                               font=("Comic Sans MS", 12))
-
-        if event == '-JOB_TABLE-' and values['-JOB_TABLE-']:
-            selected_row_index = values['-JOB_TABLE-'][0]
-            selected_job = job_listings[selected_row_index]
-            load_job_details(selected_job[0], window)
-
-        if event == '-USER_SELECT-' and values['-USER_SELECT-']:
-            selected_user_text = values['-USER_SELECT-']
-            selected_user_id = selected_user_text.split(" - ")[0]
-            load_user_details(selected_user_id, window)
+        if event == '-USER_SELECT-':
+            handle_user_selection(values, window)
 
         if event == 'Clear':
             window['-NAME-'].update('')
@@ -237,82 +342,13 @@ def main():
             window['-OTHER-'].update('')
 
         if event == 'Generate Cover Letter':
-            selected_job_index = values.get('-JOB_TABLE-', [])
-            if not selected_job_index:
-                Sg.popup_error("Please select a job before generating a cover letter.")
-                continue
-
-            job_index = selected_job_index[0]
-            job = job_listings[job_index]
-
-            job_dict = tuple_to_dict(job)
-            user_details = {
-                "name": values.get('-NAME-', ''),
-                "email": values.get('-EMAIL-', ''),
-                "phone": values.get('-PHONE-', ''),
-                "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
-                "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
-                "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
-                "other": values.get('-OTHER-', ''),
-            }
-
-            cover_letter_content = generate_cover_letter(job_dict, user_details)
-            Sg.popup('Generated Cover Letter', cover_letter_content, font=("Comic Sans MS", 12))
+            handle_generate_cover_letter(values, job_listings)
 
         if event == 'Save as PDF':
-            selected_job_index = values.get('-JOB_TABLE-', [])
-            if not selected_job_index:
-                Sg.popup_error("Please select a job before saving the resume as PDF.")
-                continue
-
-            job_index = selected_job_index[0]
-            job = job_listings[job_index]
-
-            job_dict = tuple_to_dict(job)
-            user_details = {
-                "name": values.get('-NAME-', ''),
-                "email": values.get('-EMAIL-', ''),
-                "phone": values.get('-PHONE-', ''),
-                "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
-                "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
-                "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
-                "other": values.get('-OTHER-', ''),
-            }
-
-            resume_content = generate_resume(job_dict, user_details)
-            print("Generated Resume Content:", resume_content)
-
-            output_dir = os.path.expanduser("~/Downloads")  # or any other directory of your choice
-
-            result = save_as_pdf(resume_content, output_dir)
-
-            if result.startswith("An error"):
-                Sg.popup_error(result, font=("Comic Sans MS", 12))
-            else:
-                Sg.popup(f"Resume saved as PDF successfully: {result}", font=("Comic Sans MS", 12))
+            handle_save_as_pdf(values, job_listings)
 
         if event == 'Generate Resume':
-            selected_job_index = values.get('-JOB_TABLE-', [])
-            if not selected_job_index:
-                Sg.popup_error("Please select a job before generating a resume.")
-                continue
-
-            job_index = selected_job_index[0]
-            job = job_listings[job_index]
-
-            job_dict = tuple_to_dict(job)
-            user_details = {
-                "name": values.get('-NAME-', ''),
-                "email": values.get('-EMAIL-', ''),
-                "phone": values.get('-PHONE-', ''),
-                "github_linkedin": values.get('-GITHUB_LINKEDIN-', ''),
-                "projects": values.get('-PROJECTS-', '').split(',') if values.get('-PROJECTS-', '') else [],
-                "classes": values.get('-CLASSES-', '').split(',') if values.get('-CLASSES-', '') else [],
-                "other": values.get('-OTHER-', ''),
-            }
-
-            resume_content = generate_resume(job_dict, user_details)
-            Sg.popup('Generated Resume', resume_content, font=("Comic Sans MS", 12))
+            handle_generate_resume(values, job_listings)
 
     window.close()
 

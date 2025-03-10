@@ -346,7 +346,7 @@ def create_prompt_with_job_and_user_info(job, user):
     )
     return prompt
 
-#some functions provided through google Ai
+#some functions provided through Google Ai
 
 if __name__ == "__main__":
     main()

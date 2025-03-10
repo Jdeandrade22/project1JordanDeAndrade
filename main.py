@@ -174,6 +174,7 @@ def generate_resume(job, user_details):
 
     return response.text
 
+
 def generate_cover_letter(job, user_details):
     """Generates a tailored cover letter based on the job posting and user details."""
     job = reformat_job_data(job)
@@ -219,6 +220,8 @@ def generate_cover_letter(job, user_details):
     response = gen_model.generate_content(prompt)
 
     return response.text
+
+
 def create_database():
     """Creates the database with a unique constraint to prevent duplicates."""
     conn = sqlite3.connect("savedJobs.db")
@@ -295,7 +298,6 @@ def main():
     create_database()
     insert_job_data(reformatted_jobs)
 
-#some functions provided through google Ai
 
 if __name__ == "__main__":
     main()
