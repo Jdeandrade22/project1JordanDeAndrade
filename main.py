@@ -277,8 +277,8 @@ def insert_job_data(jobs):
 
         placeholders = ", ".join(["?"] * len(values))
         sql_query = (
-            f"INSERT OR IGNORE INTO job_listings ({
-                ', '.join(columns)}) VALUES ({placeholders})"
+            f"INSERT OR IGNORE INTO job_listings ({', '.join(columns)}) "
+            f"VALUES ({placeholders})"
         )
 
         cursor.execute(sql_query, values)
