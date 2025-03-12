@@ -2,6 +2,16 @@
 
 ## **How to Run Program**
 
+'''sh
+   pip install google-generativeai
+   pip install PySimpleGui
+   pip install SQLite3
+   pip install unitTest
+   pip install markdown
+   pip install pdfkit
+   pip install wkhtmltopdf "For pdfkit"
+
+
 
 ## **Sprint 4 (final Sprint)**
 
