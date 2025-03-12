@@ -8,8 +8,7 @@
    ```sh
    git clone https://github.com/Jdeandrade22/project1JordanDeAndrade.git
 -
-
-
+2. Install the dependencies
 ```sh
    pip install google-generativeai
    pip install PySimpleGui
