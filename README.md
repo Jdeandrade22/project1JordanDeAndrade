@@ -1,5 +1,7 @@
 ## **Jordan DeAndrade - COMP490 Capstone - Project 1**
 
+## **How to Run Program**
+
 
 ## **Sprint 4 (final Sprint)**
 
@@ -14,6 +16,8 @@ Implemented:
 -Generate Cover Letter button added
 
 -Save As  PDF button added
+
+-Implemented PDFkit to allow users to save
 
 -Testing and linted updated aswell
 
@@ -64,28 +68,6 @@ create
 
 -New GUI Interface 
 
- 
-## **Prerequisites**  
-see requirements.txt
-
-## **Installation**  
-
-1. **Install dependencies:**  
-   ```sh
-   pip install google-generativeai
-   pip install PySimpleGui
-   pip install SQLite3
-   pip install unitTest
-   ##api key
-Ensure rapid_jobs2.json contains valid job listings in JSON format.
-## Usage
-
-Run the script:
-```sh
-python main.py #1 time to generate savedJobs.db
-python gui.py
-python test_data_loading.py
-```
 
 ## **Author**
 
