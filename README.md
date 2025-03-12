@@ -1,6 +1,6 @@
 ## **Jordan DeAndrade - COMP490 Capstone - Project 1**
 
--designed to help you create professional resumes and cover letters tailored to specific job postings. It uses AI to generate personalized documents and stores your information and job listings in a database, making it easy to apply for multiple jobs efficiently.
+-Designed to help you create professional resumes and cover letters tailored to specific job postings. It uses AI to generate personalized documents and stores your information and job listings in a database, making it easy to apply for multiple jobs efficiently.
 
 ## **How to Run Program**
 
@@ -12,12 +12,45 @@
 ```sh
    pip install google-generativeai
    pip install PySimpleGui
-   pip install SQLite3
-   pip install unitTest
    pip install markdown
    pip install pdfkit
    pip install wkhtmltopdf 
 ```
+3.Install WKHTMLTOPDF.exe from https://wkhtmltopdf.org/downloads.html for your os
+
+4. Change directory path of WKHTMLTOPDF (line 10) to where you would like the pdf's to download AFTER installing the .exe
+
+   MacOS
+ ```sh
+   WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'
+```
+
+windows (some may be version specific)
+
+```sh
+   WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+```
+
+5. Ensure api_secrets.py is created and contains your api key
+   
+```sh
+   api_key = "Your_api_key_here"
+```
+
+6. run main.py to generate savedJobs.db
+7. run Gui.py
+8. select a job and it will display in the Job Details: section
+9. enter User info in the designated areas then click save information for later use
+10. click generate restume
+11. once reading the resume in the popup x out and click Generate Cover Letter
+12. if both are not up to satisfaction reclick the Generate Resume button and a new resume will apear
+13. after both are to your liking make sure all popups are closed then click Save As PDF (will not work if popups are open)
+14. ensure the pdf is in the saved location then edit to your liking!
+15. run test_data_loading.py
+
+     
+
+
 
 
 
