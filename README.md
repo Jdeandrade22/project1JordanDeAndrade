@@ -2,7 +2,7 @@
 
 ## **How to Run Program**
 
-'''sh
+```sh
    pip install google-generativeai
    pip install PySimpleGui
    pip install SQLite3
@@ -10,6 +10,7 @@
    pip install markdown
    pip install pdfkit
    pip install wkhtmltopdf "For pdfkit"
+```
 
 
 
