@@ -7,15 +7,15 @@ Implemented:
 
 -Job Details shown in Job Details box once clicked
 
-*Allow the user to create a profile and save it for later use
+-Allow the user to create a profile and save it for later use
 
-*allow the user to select any profile and upload the information
+-allow the user to select any profile and upload the information
 
-*Generate Cover Letter button added
+-Generate Cover Letter button added
 
-*Save As  PDF button added
+-Save As  PDF button added
 
-*Testing and linted updated aswell
+-Testing and linted updated aswell
 
 ## **sprint3**
 -Implemented User features
