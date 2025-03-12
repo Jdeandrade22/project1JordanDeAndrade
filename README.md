@@ -1,5 +1,13 @@
-Sprint1:
 ## **Jordan DeAndrade - COMP490 Capstone - Project 1**
+
+## **Sprint 4 (final Sprint)**
+Implemented:
+-Job Details shown in Job Details box once clicked
+-Allow the user to create a profile and save it for later use
+-allow the user to select any profile and upload the information
+-Generate Cover Letter button added
+-Save As  PDF button added
+-Testing and linted updated aswell
 
 ## **sprint3**
 -Implemented User features
@@ -31,6 +39,15 @@ test_fetch_jobs()
 
 Verifies that job listings can be retrieved from the database.
 
+test_generate_llm_response()
+
+verifies that the llm returns a response to the user and API is working. 
+
+test_save_user_details()
+
+ensures that the user's details are saved.
+create
+
 -added a requirements.txt
 
 
@@ -61,26 +78,6 @@ python main.py #1 time to generate savedJobs.db
 python gui.py
 python test_data_loading.py
 ```
-Follow the on-screen prompts:
-
-## **Error Handling**
-
-Handles invalid JSON lines in rapid_jobs2.json and rapidResults (1).json
-
-Ensures job listings are properly loaded before proceeding
-
-Validates user input for job selection
-
-## output
-The user is able to create different presets to apply for resumes in the future updates
-The user is able to view updated GUI with new sectioned tabs in the GUI
-The user is able to put info into the fields when prompted
-
-## Sprint2:
-Able to read rapidResults.json
-
-implimented test cases in test_data_loading.py to test json loading and db table creation
-all scripts were linted with flake8
 
 ## **Author**
 
