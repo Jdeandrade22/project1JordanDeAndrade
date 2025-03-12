@@ -1,6 +1,14 @@
 ## **Jordan DeAndrade - COMP490 Capstone - Project 1**
 
+-designed to help you create professional resumes and cover letters tailored to specific job postings. It uses AI to generate personalized documents and stores your information and job listings in a database, making it easy to apply for multiple jobs efficiently.
+
 ## **How to Run Program**
+
+1. clone the project
+   ```sh
+   git clone https://github.com/Jdeandrade22/project1JordanDeAndrade.git
+-
+
 
 ```sh
    pip install google-generativeai
