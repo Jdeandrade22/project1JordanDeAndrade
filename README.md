@@ -9,7 +9,7 @@
    pip install unitTest
    pip install markdown
    pip install pdfkit
-   pip install wkhtmltopdf "For pdfkit"
+   pip install wkhtmltopdf 
 ```
 
 
