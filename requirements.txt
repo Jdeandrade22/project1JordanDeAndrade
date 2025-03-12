@@ -1,2 +1,2 @@
-PySimpleGUI==5.0.99.100
+PySimpleGUI==4.60.5
 google-generativeai==0.3.2
